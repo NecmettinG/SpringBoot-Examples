@@ -2,13 +2,12 @@ package com.neco.auth_tutorial.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,12 +28,10 @@ public class JwtService{
     private static final String SECRET_KEY = "4f8e3a7c1d2b9f6e7a4c8d0b3e1f5a9c2d7e6f8301b4a5c9e7d2f8b6a1c3e5d";
 
     public String extractUsername(String jwtToken) {
-
         return extractClaim(jwtToken, Claims::getSubject);
     }
 
     public String generateToken(UserDetails userDetails){
-
         return generateToken(new HashMap<>(), userDetails);
     }
 
@@ -44,51 +41,43 @@ public class JwtService{
     ){
         return Jwts
                 .builder()
-                .setClaims(extraClaims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))//For token generation date.
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24)) // after 24 hours, token will be expired.
-                .signWith(getSingInKey(), SignatureAlgorithm.HS256)
+                .claims(extraClaims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))//For token generation date.
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24)) // after 24 hours, token will be expired.
+                .signWith(getSignInKey())
                 .compact();
     }
 
     public boolean isTokenValid(String jwtToken, UserDetails userDetails){
-
         final String username = extractUsername(jwtToken);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(jwtToken);
     }
 
     private boolean isTokenExpired(String jwtToken) {
-
         return extractExpiration(jwtToken).before(new Date());
     }
 
     private Date extractExpiration(String jwtToken) {
-
         return extractClaim(jwtToken, Claims :: getExpiration);
     }
 
     public <T> T extractClaim(String jwtToken, Function<Claims, T> claimsResolver){
-
         final Claims claims = extractAllClaims(jwtToken);
-
         return claimsResolver.apply(claims);
     }
 
     private Claims extractAllClaims(String jwtToken){ //We are going to extract all claims in our token.
-
-        return Jwts //This statement is very confusing.
-                .parserBuilder()//For building a parser for our token.
-                .setSigningKey(getSingInKey())// For decoding the token. We are required to generate a sing in key from a website.
-                .build()//We need to build because it is a builder.
-                .parseClaimsJws(jwtToken)//We parsed our token.
-                .getBody(); //We get claims from the token.
+        return Jwts
+                .parser()
+                .verifyWith(getSignInKey())
+                .build()
+                .parseSignedClaims(jwtToken)
+                .getPayload();
     }
 
-    private Key getSingInKey(){
-
+    private SecretKey getSignInKey(){
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY); //We are gonna decode our secret key.
-
         return Keys.hmacShaKeyFor(keyBytes); //This is for using sign-in algorithm.
     }
 }
