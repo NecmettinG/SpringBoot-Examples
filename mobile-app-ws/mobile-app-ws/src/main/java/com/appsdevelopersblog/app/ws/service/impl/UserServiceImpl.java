@@ -7,6 +7,7 @@ import com.appsdevelopersblog.app.ws.shared.Utils;
 import com.appsdevelopersblog.app.ws.shared.dto.UserDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +18,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     Utils utils;
+
+    @Autowired
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public UserDto createUser(UserDto user){
@@ -35,7 +39,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setUserId(publicUserId);
 
         //We are going to use Spring Security to encrypt the password.
-        userEntity.setEncryptedPassword("TemporaryEncryptedPassword");
+        userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
         UserEntity storedUserDetails = userRepository.save(userEntity); //This save method also returns Entity object btw.
 
