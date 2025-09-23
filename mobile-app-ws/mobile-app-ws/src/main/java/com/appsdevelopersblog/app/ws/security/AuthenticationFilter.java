@@ -1,5 +1,8 @@
 package com.appsdevelopersblog.app.ws.security;
 
+import com.appsdevelopersblog.app.ws.SpringApplicationContext;
+import com.appsdevelopersblog.app.ws.service.UserService;
+import com.appsdevelopersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelopersblog.app.ws.ui.model.request.UserLoginRequestModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
@@ -22,6 +25,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
+//THIS CLASS IS NOT A BEAN. WE CANNOT INJECT OBJECTS WITH USING @Autowired ANNOTATION.
+//WE ARE REQUIRED TO USE UserServiceImpl CLASS TO ACCESS userId TO RETURN IT IN http response header.
+//THERE IS A WAY THAT WE CAN INJECT OBJECTS INSIDE A CLASS THAT IS NOT A SPRING BEAN. We are going to use UserServiceImpl in successfulAuthentication.
 
 /*This class will be used to authenticate user when they send request to perform user login.
 * When application receives a HTTP request to perform user login, this filter class will be triggered.
@@ -31,6 +37,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 //UsernamePasswordAuthenticationFilter is a spring security class for processing authentication information when it is submitted in HTTP request.
 
     //AuthenticationManager is used during authentication process and it has only one method called "authenticate".
+    //To inject UserServiceImpl object, we can also use constructor based dependency injection but we won't use it, there is another way.
+    //And that way is accessing UserServiceImpl object, which is a bean, from application context. But we have to create a helper class.
     public AuthenticationFilter(AuthenticationManager authenticationManager) {
         super(authenticationManager);
     }
@@ -88,8 +96,22 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .setIssuedAt(Date.from(now)).signWith(secretKey, SignatureAlgorithm.HS512).compact();
         //setting generation time and signing jwt access token with a secret key. compact method will return a final value of jwt access token.
 
+        //We get UserServiceImpl object from application context and this class has already implemented UserService interface,
+        // so we use it as datatype.
+        // We also typed "userServiceImpl" inside getBean method because object name of a class starts with lowercase in application context.
+        //The reason we use (UserService) expression is getBean method returns "Object". We convert Object into UserService with this.
+        //It is called TYPE CAST!!! The compiler knows what methods we can call in this way. Without cast, compiler only knows we have an Object-
+        //-and won't let us call UserServiceImpl methods.
+        UserService userService = (UserService)SpringApplicationContext.getBean("userServiceImpl");
+
+        //We got a particular user from database with particular email. userName represents email!
+        UserDto userDto = userService.getUser(userName);
+
         //access token is generated and added as a header to a http response object.
         //When the client application receives http response, it will be able to read this jwt access token from http response header.
         res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
+
+        //We also add UserId inside http response header.
+        res.addHeader("UserId", userDto.getUserId());
     }
 }

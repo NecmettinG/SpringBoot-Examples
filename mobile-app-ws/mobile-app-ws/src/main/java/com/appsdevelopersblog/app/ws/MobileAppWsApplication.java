@@ -18,4 +18,12 @@ public class MobileAppWsApplication {
         return new BCryptPasswordEncoder();
     }
 
+    //With this bean creation way, We have more control over bean creation. We added SpringApplicationContext object to application context.
+    //This helps when the class has more than one constructor.
+    @Bean
+    public SpringApplicationContext springApplicationContext(){
+
+        return new SpringApplicationContext();
+    }
+
 }

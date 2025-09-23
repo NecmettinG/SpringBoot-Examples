@@ -54,14 +54,30 @@ public class UserServiceImpl implements UserService {
         return returnValue;
     }
 
+    //We are going to get particular user with particular email. We are also going to use this method to get userId in json response header.
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDto getUser(String email) {
+        UserEntity userEntity = userRepository.findByEmail(email);
+
+        if(userEntity == null){
+            throw new UsernameNotFoundException("email not found:" + email);
+        }
+
+        UserDto returnValue = new UserDto();
+
+        BeanUtils.copyProperties(userEntity, returnValue);
+
+        return returnValue;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { //username represents email!!!
 
         UserEntity userEntity = userRepository.findByEmail(username);
 
         if(userEntity == null){
 
-            throw new UsernameNotFoundException("email not found.");
+            throw new UsernameNotFoundException("email not found:" + username);
         }
 
         return new User(username, userEntity.getEncryptedPassword(), new ArrayList<>());
