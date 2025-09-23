@@ -49,10 +49,17 @@ public class WebSecurity {
         //We built our authentication manager and we will use this object and our AuthenticationFilter class to create new authentication filter.
         AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 
+        //We add new authentication filter with creating AuthenticationFilter object, and AuthenticationManager object will be passed-
+        //-to super class constructor.
+        AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager);
+
+        //Normally, the default authentication url path in spring boot is "/login" but we created custom login endpoint which is "/users/login".
+        authenticationFilter.setFilterProcessesUrl("/users/login");
+
         http.csrf((csrf) -> csrf.disable()) //We disabled cross-site request forgery which is redundant for our app. Because our api is stateless.
                 .authorizeHttpRequests((authz) -> authz.requestMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
                         .permitAll().anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
-                .authenticationManager(authenticationManager).addFilter(new AuthenticationFilter(authenticationManager));
+                .authenticationManager(authenticationManager).addFilter(authenticationFilter);
                 //We add new authentication filter with creating AuthenticationFilter object, and AuthenticationManager object will be passed-
                 // -to super class constructor. We also updated Http security object with .authenticationManager(authenticationManager) method.
 
