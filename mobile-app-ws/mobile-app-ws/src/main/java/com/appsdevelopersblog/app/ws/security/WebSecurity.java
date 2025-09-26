@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -59,9 +60,13 @@ public class WebSecurity {
         http.csrf((csrf) -> csrf.disable()) //We disabled cross-site request forgery which is redundant for our app. Because our api is stateless.
                 .authorizeHttpRequests((authz) -> authz.requestMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
                         .permitAll().anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
-                .authenticationManager(authenticationManager).addFilter(authenticationFilter);
+                .authenticationManager(authenticationManager).addFilter(authenticationFilter).addFilter(new AuthorizationFilter(authenticationManager))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
                 //We add new authentication filter with creating AuthenticationFilter object, and AuthenticationManager object will be passed-
                 // -to super class constructor. We also updated Http security object with .authenticationManager(authenticationManager) method.
+                //We also added another filter which is authorization filter. We also added session management to make the application stateless.
+                //This means Spring security will never create Http session and will never use it to obtain security context. This means that-
+                //-If there is no Http session created for user authorization, Spring Security will rely on the information that is inside of Jwt.
 
         // /users api endpoint will be public and open to all users, and all other api endpoints will be protected.
         // Only authenticated users are allowed to invoke them.

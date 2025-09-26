@@ -7,6 +7,7 @@ import com.appsdevelopersblog.app.ws.ui.model.request.UserLoginRequestModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -75,12 +76,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
 
-        //To generate JSON web token, We used the value of Token Secret from SecurityConstants class and got its bytes.
-        //Then we used Base64 encoder to encode these bytes into a new byte array called secretKeyBytes.
-        byte[] secretKeyBytes = Base64.getEncoder().encode(SecurityConstants.TOKEN_SECRET.getBytes());
+        //To generate JSON web token, We used the value of Token Secret from application.properties file and got its bytes.
+        //We used getTokenSecret function to get token secret and put bytes into a new byte array called secretKeyBytes.
+        byte[] secretKeyBytes = SecurityConstants.getTokenSecret().getBytes();
 
         //We used the byte array to generate secret key which will be used to sign jwt access token in the code below.
-        SecretKey secretKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
+        SecretKey secretKey = Keys.hmacShaKeyFor(secretKeyBytes);
 
         //For setting generation date and expiration date for jwt token, We use Instant object.
         Instant now = Instant.now();
@@ -90,10 +91,10 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
         //To generate jwt token, we use Jwts.builder().
         String token = Jwts.builder()
-                .setSubject(userName) //We used authenticated username as a subject to jwt token.
-                .setExpiration( //Setting token expiration time with using Expiration Time from SecurityConstants class.
+                .subject(userName) //We used authenticated username as a subject to jwt token.
+                .expiration( //Setting token expiration time with using Expiration Time from SecurityConstants class.
                         Date.from(now.plusMillis(SecurityConstants.EXPIRATION_TIME)))
-                .setIssuedAt(Date.from(now)).signWith(secretKey, SignatureAlgorithm.HS512).compact();
+                .issuedAt(Date.from(now)).signWith(secretKey).compact();
         //setting generation time and signing jwt access token with a secret key. compact method will return a final value of jwt access token.
 
         //We get UserServiceImpl object from application context and this class has already implemented UserService interface,
