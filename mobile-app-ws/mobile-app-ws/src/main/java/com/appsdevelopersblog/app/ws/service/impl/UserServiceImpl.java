@@ -1,10 +1,12 @@
 package com.appsdevelopersblog.app.ws.service.impl;
 
+import com.appsdevelopersblog.app.ws.exceptions.UserServiceException;
 import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
 import com.appsdevelopersblog.app.ws.io.repository.UserRepository;
 import com.appsdevelopersblog.app.ws.service.UserService;
 import com.appsdevelopersblog.app.ws.shared.Utils;
 import com.appsdevelopersblog.app.ws.shared.dto.UserDto;
+import com.appsdevelopersblog.app.ws.ui.model.response.ErrorMessages;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -81,6 +83,33 @@ public class UserServiceImpl implements UserService {
         UserDto returnValue = new UserDto();
 
         BeanUtils.copyProperties(userEntity, returnValue);
+
+        return returnValue;
+    }
+
+    //We could use @Transactional here. It would be enough to change the values of attributes via setters and directly save them to database.
+    //There is no need to use .save() method if you annotate this method with @Transactional.
+    @Override
+    public UserDto updateUser(String userId, UserDto user){
+
+        UserEntity userEntity = userRepository.findByUserId(userId);
+
+        if(userEntity == null){
+            //Teacher decided to use our UserServiceException with custom error message from ErrorMessages enum but We could use-
+            //-UsernameNotFoundException, that comes from Spring, as well.
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
+
+        UserDto returnValue = new UserDto();
+
+        userEntity.setFirstName(user.getFirstName());
+        userEntity.setLastName(user.getLastName());
+        //We can also update our password and encrypt that password again. Teacher didn't write this but I decided to add this.
+        userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+        UserEntity updatedUserDetails = userRepository.save(userEntity);
+
+        BeanUtils.copyProperties(updatedUserDetails, returnValue);
 
         return returnValue;
     }
