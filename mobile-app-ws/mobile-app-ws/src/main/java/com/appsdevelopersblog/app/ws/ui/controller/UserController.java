@@ -1,10 +1,12 @@
 package com.appsdevelopersblog.app.ws.ui.controller;
 
 
+import com.appsdevelopersblog.app.ws.exceptions.UserServiceException;
 import com.appsdevelopersblog.app.ws.service.UserService;
 import com.appsdevelopersblog.app.ws.service.impl.UserServiceImpl;
 import com.appsdevelopersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelopersblog.app.ws.ui.model.request.UserDetailsRequestModel;
+import com.appsdevelopersblog.app.ws.ui.model.response.ErrorMessages;
 import com.appsdevelopersblog.app.ws.ui.model.response.UserRest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +42,16 @@ public class UserController{
     @PostMapping(
             consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails){
+    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws UserServiceException{
 
         UserRest returnValue = new UserRest();//This instance is for response.
+
+        //If firstname is not entered in request body, we will throw our custom exception and error message is from ErrorMessages enum.
+        if(userDetails.getFirstName().isEmpty()){
+
+            //We pass the error message, comes from ErrorMessages enum, to UserServiceException.
+            throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+        }
 
         UserDto userDto = new UserDto();
 
