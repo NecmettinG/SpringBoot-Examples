@@ -9,4 +9,5 @@ public interface UserService extends UserDetailsService {//UserDetailsService co
     public UserDto getUser(String email); //We created this method to get user details from database with using email information.
     public UserDto getUserByUserId(String userId);
     public UserDto updateUser(String userId,UserDto user);
+    public void deleteUser(String userId);
 }

@@ -115,6 +115,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void deleteUser(String userId){
+
+        UserEntity userEntity = userRepository.findByUserId(userId);
+
+        if(userEntity == null){
+            //Teacher decided to use our UserServiceException with custom error message from ErrorMessages enum but We could use-
+            //-UsernameNotFoundException, that comes from Spring, as well.
+            throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
+        }
+
+        //We delete that particular user from database. .delete() method takes UserEntity as parameter.
+        userRepository.delete(userEntity);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { //username represents email!!!
 
         UserEntity userEntity = userRepository.findByEmail(username);

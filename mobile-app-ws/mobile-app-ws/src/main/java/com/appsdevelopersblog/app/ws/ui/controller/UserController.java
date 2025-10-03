@@ -6,8 +6,7 @@ import com.appsdevelopersblog.app.ws.service.UserService;
 import com.appsdevelopersblog.app.ws.service.impl.UserServiceImpl;
 import com.appsdevelopersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelopersblog.app.ws.ui.model.request.UserDetailsRequestModel;
-import com.appsdevelopersblog.app.ws.ui.model.response.ErrorMessages;
-import com.appsdevelopersblog.app.ws.ui.model.response.UserRest;
+import com.appsdevelopersblog.app.ws.ui.model.response.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -84,9 +83,20 @@ public class UserController{
         return returnValue;
     }
 
-    @DeleteMapping
-    public String deleteUser(){
+    //We won't return user details in this function because we are deleting it. A return message like "Success" is enough. That's why We-
+    //-created OperationStatusModel class to perform this task.
+    @DeleteMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public OperationStatusModel deleteUser(@PathVariable("id") String id){
 
-        return "delete user is called.";
+        OperationStatusModel returnValue = new OperationStatusModel();
+
+        //.name() method is used for enums to convert the enum name to string.
+        returnValue.setOperationName(RequestOperationName.DELETE.name());
+
+        userService.deleteUser(id);
+
+        returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+
+        return returnValue;
     }
 }
