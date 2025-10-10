@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+//We have to use context path to make our tomcat server distinguish different applications to avoid conflict. Two different applications-
+//-cannot use same root url which is http::localhost:8080. We have to change their root url like http::localhost:8080/mobile-app-ws or
+//- http::localhost:8080/car-store etc. Context path will be implemented in properties file.
 @RestController
-@RequestMapping("users") // http::localhost:8080/users
+@RequestMapping("users") // http::localhost:8080/users, with context path: http::localhost:8080/mobile-app-ws/users
 public class UserController{
 
     @Autowired
@@ -39,7 +42,7 @@ public class UserController{
         return returnValue;
     }
 
-    //We are going to return a list of users. page and limit comes from query string. (http://localhost:8080/users?page=0&limit=50).
+    //We are going to return a list of users. page and limit comes from query string(http://localhost:8080/mobile-app-ws/users?page=0&limit=50).
     //query string starts from "?".
     //value parameter takes the value of the specific key that is in query string. We can also use default value if we don't pass any value.
     //This get request only produces output so we added both json and xml support. Get request won't accept any information in Http body, so We-
