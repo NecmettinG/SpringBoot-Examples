@@ -9,6 +9,9 @@ import com.appsdevelopersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelopersblog.app.ws.ui.model.response.ErrorMessages;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -68,6 +72,41 @@ public class UserServiceImpl implements UserService {
         UserDto returnValue = new UserDto();
 
         BeanUtils.copyProperties(userEntity, returnValue);
+
+        return returnValue;
+    }
+
+    //We are going to return a list of users but we won't return the whole users list. page is the page we created and limit is the-
+    //- quantity of users that will be returned in a list. It is like "I CAST THE RETURN OF 50 USERS FOR PAGE 0!!"
+    //Imagine you have two record in database. If you enter "?page=0&limit=1" in query string, You get the first record for page 0.
+    //Then, if you type "?page=1&limit=1", You get the second record for page 1. This is called pagination!!!
+    @Override
+    public List<UserDto> getUsers(int page, int limit){
+
+        List<UserDto> returnValue = new ArrayList<>();
+
+        //The page number normally starts from 0 but we manipulated this. If we assign value 1 to page, we will get first page.
+        if(page>0){
+            page -= 1;
+        }
+
+        //We created Pageable object to use it in findAll() jpa method.
+        Pageable pageableRequest = PageRequest.of(page, limit);//PageRequest.of(page, size) method takes page and size parameters.
+
+        //This findAll(Pageable) method also return Page object. DON'T FORGET IT!!
+        Page<UserEntity> usersPage = userRepository.findAll(pageableRequest); //This findAll() jpa method is special. It takes Pageable object as parameter for pagination.
+
+        List<UserEntity> users = usersPage.getContent(); //We can directly get users from Page object and put to List with .getContent() method.
+
+        //Similar enhanced loop structure from getUsers that is in UserController.
+        for(UserEntity userEntity : users){
+
+            UserDto userDto = new UserDto();
+
+            BeanUtils.copyProperties(userEntity, userDto);
+
+            returnValue.add(userDto);
+        }
 
         return returnValue;
     }

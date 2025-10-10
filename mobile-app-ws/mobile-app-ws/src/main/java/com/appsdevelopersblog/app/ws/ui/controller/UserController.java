@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("users") // http::localhost:8080/users
 public class UserController{
@@ -32,6 +35,33 @@ public class UserController{
         UserDto userDto = userService.getUserByUserId(id);
 
         BeanUtils.copyProperties(userDto, returnValue);
+
+        return returnValue;
+    }
+
+    //We are going to return a list of users. page and limit comes from query string. (http://localhost:8080/users?page=0&limit=50).
+    //query string starts from "?".
+    //value parameter takes the value of the specific key that is in query string. We can also use default value if we don't pass any value.
+    //This get request only produces output so we added both json and xml support. Get request won't accept any information in Http body, so We-
+    //-did not use "consumes". PAGE STARTS FROM 0 IN SQL BTW. REMEMBER THAT! 0 IS THE FIRST PAGE!
+    @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public List<UserRest> getUsers(@RequestParam(value= "page", defaultValue = "1") int page,
+                                   @RequestParam(value= "limit", defaultValue = "25") int limit){
+
+        List<UserRest> returnValue = new ArrayList<>();
+
+        List<UserDto> users =userService.getUsers(page, limit);
+
+        //Enhanced for loop for converting each UserDto object to UserRest object and store them into returnValue array list.
+        for(UserDto userDto : users){
+            //We are going to create a UserRest object to copy properties from UserDto object to this UserRest object.
+            UserRest userModel = new UserRest();
+
+            BeanUtils.copyProperties(userDto, userModel);
+
+            //We added the UserRest object into returnValue Array List.
+            returnValue.add(userModel);
+        }
 
         return returnValue;
     }
@@ -85,6 +115,12 @@ public class UserController{
 
     //We won't return user details in this function because we are deleting it. A return message like "Success" is enough. That's why We-
     //-created OperationStatusModel class to perform this task.
+    //Whenever we delete a user that is logged in, We are still able to delete other users due to deleted user's json web token, which is still-
+    //-valid. We have to fix this. This is how you can do it:
+    //1. When JWT token is initially generated, add the value of userId in to your token.
+    //2. When a request for DELETE userId comes in, read JWT from the HTTP Header value and extract userId from Token.
+    //3. Compare userId which was read from JWT Token with a userId read from Request Path variable. If they do not match, fail the request.
+    //I am going to configure this later.
     @DeleteMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public OperationStatusModel deleteUser(@PathVariable("id") String id){
 
