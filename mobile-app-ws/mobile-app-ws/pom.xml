@@ -4,10 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <!--We set the packaging field from jar to war(web application archive.)-->
     <groupId>com.appsdevelopersblog.app.ws</groupId>
     <artifactId>mobile-app-ws</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <name>mobile-app-ws</name>
     <description>Demo project for Spring Boot</description>
@@ -84,9 +85,11 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!--scope field is added as provided. This makes the tomcat dependencies provided at the runtime, not the compile time.-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
