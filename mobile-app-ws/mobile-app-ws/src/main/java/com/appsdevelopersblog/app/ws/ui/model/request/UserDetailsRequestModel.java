@@ -3,6 +3,8 @@ package com.appsdevelopersblog.app.ws.ui.model.request;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
+import java.util.List;
+
 //This class is for handling post request and @RequestBody annotation. Whenever we create a user, this class will be used.
 public class UserDetailsRequestModel {
 
@@ -10,6 +12,7 @@ public class UserDetailsRequestModel {
     private String lastName;
     private String email;
     private String password;
+    private List<AddressRequestModel> addresses;
 
     public String getFirstName(){
 
@@ -49,5 +52,15 @@ public class UserDetailsRequestModel {
     public void setPassword(String password){
 
         this.password = password;
+    }
+
+    public List<AddressRequestModel> getAddresses(){
+
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressRequestModel> addresses){
+
+        this.addresses = addresses;
     }
 }

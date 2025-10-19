@@ -1,11 +1,9 @@
 package com.appsdevelopersblog.app.ws.io.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Entity(name = "users") //If this doesn't work, I am going to add @Table(name = "users").
 public class UserEntity implements Serializable {
@@ -35,6 +33,13 @@ public class UserEntity implements Serializable {
 
     @Column(nullable = false)
     private Boolean emailVerificationStatus = false;
+
+    //We declared one to many relationship between UserEntity and AddressEntity. One user can have multiple addresses.
+    //"mappedBy" takes the name of the attribute, which will be used for foreign key column, that has @ManyToOne from AddressEntity.
+    //CascadeType.ALL means whenever we delete a user, their address records from "addresses" table will also be deleted. But for avoiding-
+    //-errors whenever we try to delete directly from SQL, we have to add orphanRemoval = true.
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userDetails", orphanRemoval = true)
+    private List<AddressEntity> addresses;
 
     public long getId() {
         return id;
@@ -98,5 +103,13 @@ public class UserEntity implements Serializable {
 
     public void setEmailVerificationStatus(Boolean emailVerificationStatus) {
         this.emailVerificationStatus = emailVerificationStatus;
+    }
+
+    public List<AddressEntity> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressEntity> addresses) {
+        this.addresses = addresses;
     }
 }

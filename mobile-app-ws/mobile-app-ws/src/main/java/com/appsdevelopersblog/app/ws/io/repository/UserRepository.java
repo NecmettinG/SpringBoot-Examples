@@ -12,7 +12,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> { //We can also use JpaRepository<UserEntity, Long>
 
-    //These are called query methods. I already know how these work.
+    //These are called query methods. I already know how these work. "-Email" and "-UserId" comes from email and userId variables from-
+    // -UserEntity.
     UserEntity findByEmail(String email);
     UserEntity findByUserId(String userId);
 }

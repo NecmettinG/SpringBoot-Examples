@@ -3,27 +3,38 @@ package com.appsdevelopersblog.app.ws.ui.controller;
 
 import com.appsdevelopersblog.app.ws.exceptions.UserServiceException;
 import com.appsdevelopersblog.app.ws.service.UserService;
+import com.appsdevelopersblog.app.ws.service.impl.AddressServiceImpl;
 import com.appsdevelopersblog.app.ws.service.impl.UserServiceImpl;
+import com.appsdevelopersblog.app.ws.shared.dto.AddressDto;
 import com.appsdevelopersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelopersblog.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.appsdevelopersblog.app.ws.ui.model.response.*;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 //We have to use context path to make our tomcat server distinguish different applications to avoid conflict. Two different applications-
 //-cannot use same root url which is http::localhost:8080. We have to change their root url like http::localhost:8080/mobile-app-ws or
-//- http::localhost:8080/car-store etc. Context path will be implemented in properties file.
+//- http://localhost:8080/car-store etc. Context path will be implemented in properties file.
 @RestController
-@RequestMapping("users") // http::localhost:8080/users, with context path: http::localhost:8080/mobile-app-ws/users
+@RequestMapping("users") // http://localhost:8080/users, with context path: http://localhost:8080/mobile-app-ws/users
 public class UserController{
 
     @Autowired
     UserServiceImpl userService;
+
+    @Autowired
+    AddressServiceImpl addressesService;
+
+    @Autowired
+    AddressServiceImpl addressService;
 
     //We are going to add xml support for response. Default response format is Json but some client applications may want xml response.
     //This response type is defined in Http header called "Accept". It may take values like "applicaton/json", "application/xml" and so on.
@@ -85,14 +96,21 @@ public class UserController{
             throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
         }
 
-        UserDto userDto = new UserDto();
+        //UserDto userDto = new UserDto();
+        //BeanUtils is good for copying data to source object to destination object. But it is problematic source object has an object as-
+        //-attribute. We added AddressRequestModel list to our UserDetailsRequestModel class as an attribute. We are gonna use ModelMapper.
+        //BeanUtils.copyProperties(userDetails, userDto); //We copied userDetails properties' values and pasted to userDto instance.
 
-        BeanUtils.copyProperties(userDetails, userDto); //We copied userDetails properties' values and pasted to userDto instance.
+        ModelMapper modelMapper = new ModelMapper();//Instantiate a ModelMapper instance first.
+
+        //.map(source object, destination class) method returns an instance that is an object of destination class.
+        UserDto userDto = modelMapper.map(userDetails, UserDto.class);//Destination parameter is a bit different from BeanUtils, takes datatype.
 
         UserDto createdUser = userService.createUser(userDto);//createdUser is the returned instance from userService.
 
-        BeanUtils.copyProperties(createdUser, returnValue);//createdUser properties' values are copied and are pasted into returnedValue.
+        //BeanUtils.copyProperties(createdUser, returnValue);//createdUser properties' values are copied and are pasted into returnedValue.
 
+        returnValue = modelMapper.map(createdUser, UserRest.class);
         return returnValue;
     }
 
@@ -138,4 +156,35 @@ public class UserController{
 
         return returnValue;
     }
+
+    // http://localhost:8080/mobile-app-ws/users/{id}/addresses
+    @GetMapping(path = "/{id}/addresses", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    public List<AddressesRest> getUserAddresses(@PathVariable("id") String id){
+
+        List<AddressesRest> returnValue = new ArrayList<>();
+
+        List<AddressDto> addressesDto = addressesService.getAddresses(id);
+
+        if(addressesDto !=null && !addressesDto.isEmpty()){
+
+            //We can also copy and map an entire list with using ModelMapper but destination data type is a bit different.
+            Type listType = new TypeToken<List <AddressesRest>>(){}.getType();
+            ModelMapper modelMapper = new ModelMapper();
+            returnValue = modelMapper.map(addressesDto, listType);
+        }
+
+        return returnValue;
+    }
+
+    @GetMapping(path = "/{userId}/addresses/{addressId}", produces = {MediaType.APPLICATION_JSON_VALUE,
+            MediaType.APPLICATION_XML_VALUE})
+    public AddressesRest getUserAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId){
+
+        AddressDto addressDto = addressService.getAddress(addressId);
+
+        ModelMapper modelMapper = new ModelMapper();
+
+        return modelMapper.map(addressDto, AddressesRest.class);
+    }
+
 }

@@ -5,8 +5,10 @@ import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
 import com.appsdevelopersblog.app.ws.io.repository.UserRepository;
 import com.appsdevelopersblog.app.ws.service.UserService;
 import com.appsdevelopersblog.app.ws.shared.Utils;
+import com.appsdevelopersblog.app.ws.shared.dto.AddressDto;
 import com.appsdevelopersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelopersblog.app.ws.ui.model.response.ErrorMessages;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,8 +43,20 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException("Email already exists");
         }
 
-        UserEntity userEntity = new UserEntity();
-        BeanUtils.copyProperties(user, userEntity);
+        //We get the AddressDto list from user and assigned the user and generated public address id to each AddressDto object.
+        for(int i = 0; i < user.getAddresses().size(); i++){
+
+            AddressDto addressDto = user.getAddresses().get(i);
+            addressDto.setUserDetails(user);
+            addressDto.setAddressId(utils.generateAddressId(30));
+            user.getAddresses().set(i, addressDto);
+        }
+
+        //UserEntity userEntity = new UserEntity();
+        //BeanUtils.copyProperties(user, userEntity);
+
+        ModelMapper modelMapper = new ModelMapper();
+        UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 
         String publicUserId = utils.generateUserId(30);
         //"0ghuZ7cuevzzCy4AbR3nIsMLXNx1Pc" is an example public userId.
@@ -54,8 +68,9 @@ public class UserServiceImpl implements UserService {
 
         UserEntity storedUserDetails = userRepository.save(userEntity); //This save method also returns Entity object btw.
 
-        UserDto returnValue = new UserDto();
-        BeanUtils.copyProperties(storedUserDetails, returnValue);
+        //UserDto returnValue = new UserDto();
+        //BeanUtils.copyProperties(storedUserDetails, returnValue);
+        UserDto returnValue = modelMapper.map(storedUserDetails, UserDto.class);
 
         return returnValue;
     }
