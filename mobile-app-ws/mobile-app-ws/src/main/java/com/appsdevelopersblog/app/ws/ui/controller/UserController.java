@@ -2,6 +2,7 @@ package com.appsdevelopersblog.app.ws.ui.controller;
 
 
 import com.appsdevelopersblog.app.ws.exceptions.UserServiceException;
+import com.appsdevelopersblog.app.ws.service.AddressService;
 import com.appsdevelopersblog.app.ws.service.UserService;
 import com.appsdevelopersblog.app.ws.service.impl.AddressServiceImpl;
 import com.appsdevelopersblog.app.ws.service.impl.UserServiceImpl;
@@ -13,19 +14,24 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 //We have to use context path to make our tomcat server distinguish different applications to avoid conflict. Two different applications-
 //-cannot use same root url which is http::localhost:8080. We have to change their root url like http::localhost:8080/mobile-app-ws or
 //- http://localhost:8080/car-store etc. Context path will be implemented in properties file.
 @RestController
-@RequestMapping("users") // http://localhost:8080/users, with context path: http://localhost:8080/mobile-app-ws/users
-public class UserController{
+@RequestMapping("/users") // http://localhost:8080/users, with context path: http://localhost:8080/mobile-app-ws/users
+public class UserController {
 
     @Autowired
     UserServiceImpl userService;
@@ -42,7 +48,7 @@ public class UserController{
     //With "produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}", We added both Json and Xml response support.
     //But Json is prioritized because it is written as first. If client app. doesn't define "Accept" header, Default response will be Json.
     @GetMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public UserRest getUser(@PathVariable("id") String id){
+    public UserRest getUser(@PathVariable("id") String id) {
 
         UserRest returnValue = new UserRest();
 
@@ -59,15 +65,15 @@ public class UserController{
     //This get request only produces output so we added both json and xml support. Get request won't accept any information in Http body, so We-
     //-did not use "consumes". PAGE STARTS FROM 0 IN SQL BTW. REMEMBER THAT! 0 IS THE FIRST PAGE!
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public List<UserRest> getUsers(@RequestParam(value= "page", defaultValue = "1") int page,
-                                   @RequestParam(value= "limit", defaultValue = "25") int limit){
+    public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "1") int page,
+                                   @RequestParam(value = "limit", defaultValue = "25") int limit) {
 
         List<UserRest> returnValue = new ArrayList<>();
 
-        List<UserDto> users =userService.getUsers(page, limit);
+        List<UserDto> users = userService.getUsers(page, limit);
 
         //Enhanced for loop for converting each UserDto object to UserRest object and store them into returnValue array list.
-        for(UserDto userDto : users){
+        for (UserDto userDto : users) {
             //We are going to create a UserRest object to copy properties from UserDto object to this UserRest object.
             UserRest userModel = new UserRest();
 
@@ -85,12 +91,12 @@ public class UserController{
     @PostMapping(
             consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws UserServiceException{
+    public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws UserServiceException {
 
         UserRest returnValue = new UserRest();//This instance is for response.
 
         //If firstname is not entered in request body, we will throw our custom exception and error message is from ErrorMessages enum.
-        if(userDetails.getFirstName().isEmpty()){
+        if (userDetails.getFirstName().isEmpty()) {
 
             //We pass the error message, comes from ErrorMessages enum, to UserServiceException.
             throw new UserServiceException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
@@ -119,7 +125,7 @@ public class UserController{
             consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
     )
-    public UserRest updateUser(@RequestBody UserDetailsRequestModel userDetails, @PathVariable("id") String id){
+    public UserRest updateUser(@RequestBody UserDetailsRequestModel userDetails, @PathVariable("id") String id) {
 
         UserRest returnValue = new UserRest();
 
@@ -143,7 +149,7 @@ public class UserController{
     //3. Compare userId which was read from JWT Token with a userId read from Request Path variable. If they do not match, fail the request.
     //I am going to configure this later.
     @DeleteMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public OperationStatusModel deleteUser(@PathVariable("id") String id){
+    public OperationStatusModel deleteUser(@PathVariable("id") String id) {
 
         OperationStatusModel returnValue = new OperationStatusModel();
 
@@ -158,33 +164,87 @@ public class UserController{
     }
 
     // http://localhost:8080/mobile-app-ws/users/{id}/addresses
+    //For using HATEOAS on a method that returns list of AddressesRest, we will use CollectionModel instead of EntityModel.
+    //The json response of CollectionModel is a bit different from EntityModel. Our addresses are values of a key called "_embedded".
     @GetMapping(path = "/{id}/addresses", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
-    public List<AddressesRest> getUserAddresses(@PathVariable("id") String id){
+    public CollectionModel<AddressesRest> getUserAddresses(@PathVariable("id") String id) {
 
         List<AddressesRest> returnValue = new ArrayList<>();
 
         List<AddressDto> addressesDto = addressesService.getAddresses(id);
 
-        if(addressesDto !=null && !addressesDto.isEmpty()){
+        if (addressesDto != null && !addressesDto.isEmpty()) {
 
             //We can also copy and map an entire list with using ModelMapper but destination data type is a bit different.
-            Type listType = new TypeToken<List <AddressesRest>>(){}.getType();
+            Type listType = new TypeToken<List<AddressesRest>>() {
+            }.getType();
             ModelMapper modelMapper = new ModelMapper();
             returnValue = modelMapper.map(addressesDto, listType);
+
+            //We implemented this for loop for adding links to each address element in the list.
+            for (AddressesRest addressRest : returnValue) {
+
+                // http://localhost:8080/users/<userId>/addresses/<addressId>
+                Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class)
+                                .getUserAddress(id, addressRest.getAddressId()))
+                        .withSelfRel();
+
+                addressRest.add(selfLink);
+            }
         }
 
-        return returnValue;
+        // http://localhost:8080/users/<userId> This link is for certain user with certain userId. Link class comes from HATEOAS.
+        Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(id).withRel("user");
+
+        // http://localhost:8080/users/<userId>/addresses This is a self link. Be careful that we used .withSelfRel() instead of-
+        //- .withRel("<relation name>"). The method that is from UserController takes path variable parameter.(.getUserAddresses(id))
+        Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(id)).withSelfRel();
+
+        return CollectionModel.of(returnValue, userLink, selfLink);
     }
 
+    //We will use HATEOAS on this api endpoint. We extended our AddressesRest class with RepresentationModel.
+    //HATEOAS is simply we return multiple endpoint addresses, that is relevant to this endpoint, in response.
+    //Example json output is written in AddressesRest class. Check there.
     @GetMapping(path = "/{userId}/addresses/{addressId}", produces = {MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE})
-    public AddressesRest getUserAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId){
+    public EntityModel<AddressesRest> getUserAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId) {
 
         AddressDto addressDto = addressService.getAddress(addressId);
 
         ModelMapper modelMapper = new ModelMapper();
+        AddressesRest returnValue = modelMapper.map(addressDto, AddressesRest.class);
 
-        return modelMapper.map(addressDto, AddressesRest.class);
+        // http://localhost:8080/users/<userId> This link is for certain user with certain userId. Link class comes from HATEOAS.
+        Link userLink = WebMvcLinkBuilder.linkTo(UserController.class).slash(userId).withRel("user");
+
+        // http://localhost:8080/users/<userId>/addresses This link is for all user addresses. We can also get rid of .slash() methods.
+        //Notice that the link we built is the same endpoint with getUserAddresses. We can use methodOn() to avoid hardcoding which is-
+        //- the usage of .slash(). I will leave userLink as it is because I want to demonstrate both the usage of .slash() and .methodOn().
+        Link userAddressesLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(userId))
+                //.slash(userId)
+                //.slash("addresses")
+                .withRel("addresses");
+
+        // http://localhost:8080/users/<userId>/addresses/<addressId> This is a self link. Be careful that we used .withSelfRel() instead of-
+        //- .withRel("<relation name>").
+        Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddress(userId, addressId))
+                //.slash(userId)
+                //.slash("addresses")
+                //.slash(addressId)
+                .withSelfRel();
+
+        //RepresentationModel class includes a method called .add() for adding link to response class.
+        /*
+        returnValue.add(userLink);
+        returnValue.add(userAddressesLink);
+        returnValue.add(selfLink);
+         */
+
+        //We can also use EntityModel to wrap our single object that we are returning and it will allow us to add links to it as well.
+        //No need to use .add() method or no need to extend the AddressesRest class with RepresentationModel.
+        //I will add them to comment line just in case. We are going to return EntityModel in this method.
+        return EntityModel.of(returnValue, Arrays.asList(userLink, userAddressesLink, selfLink));
     }
 
 }

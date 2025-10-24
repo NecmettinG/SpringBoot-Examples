@@ -1,6 +1,28 @@
 package com.appsdevelopersblog.app.ws.ui.model.response;
 
-public class AddressesRest {
+import org.springframework.hateoas.RepresentationModel;
+
+//RepresentationModel is for HATEOAS usage. The example json output for getUserAddress from UserController will be:
+//{
+//    "addressId": "fOyRuQJVPP9ZUSI8WsAxIBcAPBobUW",
+//    "city": "Istanbul",
+//    "country": "Turkey",
+//    "streetName": "Aydinlar Streeet",
+//    "postalCode": "34569",
+//    "type": "SHIPPING",
+//    "_links": {
+//        "user": {
+//            "href": "http://localhost:8080/mobile-app-ws/users/eY1yH2FN0c4rYMZLCvPQPyaaimoJfS"
+//        },
+//        "addresses": {
+//            "href": "http://localhost:8080/mobile-app-ws/users/eY1yH2FN0c4rYMZLCvPQPyaaimoJfS/addresses"
+//        },
+//        "self": {
+//            "href": "http://localhost:8080/mobile-app-ws/users/eY1yH2FN0c4rYMZLCvPQPyaaimoJfS/addresses/fOyRuQJVPP9ZUSI8WsAxIBcAPBobUW"
+//        }
+//    }
+//}
+public class AddressesRest extends RepresentationModel<AddressesRest> {//RepresentationModel is needed to use .add() method.
 
     private String addressId;
     private String city;
