@@ -103,7 +103,7 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         }
 
         //We will return a new object of UsernamePasswordAuthenticationToken. This object is used to hold principle user credentials.
-        //We will add this object to Spring Security Context Holder when we return this object. This will mean a successful authorization.-
+        //We will add this object to Spring Security Context Holder once we return this object. This will mean a successful authorization.-
         //The validation of jwt is successful.
         //At this moment, we can create this object with subject value aka username only. It is enough for now. No password.
         return new UsernamePasswordAuthenticationToken(subject, null, new ArrayList<>());

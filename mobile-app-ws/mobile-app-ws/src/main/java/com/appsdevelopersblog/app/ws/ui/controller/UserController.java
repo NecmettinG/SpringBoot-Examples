@@ -95,7 +95,7 @@ public class UserController {
 
         UserRest returnValue = new UserRest();//This instance is for response.
 
-        //If firstname is not entered in request body, we will throw our custom exception and error message is from ErrorMessages enum.
+        //If firstname is not entered in request body, we will throw our custom exception and error message that is from ErrorMessages enum.
         if (userDetails.getFirstName().isEmpty()) {
 
             //We pass the error message, comes from ErrorMessages enum, to UserServiceException.
@@ -103,7 +103,7 @@ public class UserController {
         }
 
         //UserDto userDto = new UserDto();
-        //BeanUtils is good for copying data to source object to destination object. But it is problematic source object has an object as-
+        //BeanUtils is good for copying data to source object to destination object. But it is problematic when source object has an object as-
         //-attribute. We added AddressRequestModel list to our UserDetailsRequestModel class as an attribute. We are gonna use ModelMapper.
         //BeanUtils.copyProperties(userDetails, userDto); //We copied userDetails properties' values and pasted to userDto instance.
 

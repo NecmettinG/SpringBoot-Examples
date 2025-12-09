@@ -48,7 +48,11 @@ public class UserServiceImpl implements UserService {
 
             AddressDto addressDto = user.getAddresses().get(i);
             addressDto.setUserDetails(user);
+
+            //We generate public addressIds to each addressDtos.
             addressDto.setAddressId(utils.generateAddressId(30));
+
+            //we will assign new addressDtos with newly generated addressIds to user again.
             user.getAddresses().set(i, addressDto);
         }
 
@@ -56,6 +60,7 @@ public class UserServiceImpl implements UserService {
         //BeanUtils.copyProperties(user, userEntity);
 
         ModelMapper modelMapper = new ModelMapper();
+        //addressDtos will also be mapped to AddressEntities.
         UserEntity userEntity = modelMapper.map(user, UserEntity.class);
 
         String publicUserId = utils.generateUserId(30);

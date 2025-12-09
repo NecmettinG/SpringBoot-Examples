@@ -11,7 +11,7 @@ public class SpringApplicationContext implements ApplicationContextAware {
 
     private static ApplicationContext CONTEXT;
 
-    //In this method, ApplicationContext is a method argument and we can use it access beans that are inside of application context.
+    //In this method, ApplicationContext is a method argument and we can use it to access beans that are inside of application context.
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 
