@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Su Hackathon - Sensör Takip</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { height: 100vh; width: 100%; } /* Harita tüm ekranı kaplasın */
+        
+        /* Sağ üst köşeye şık bir bilgi kutusu ekleyelim */
+        .info-box {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info-box">
+        <h3>🌱 Tarla Durumu</h3>
+        <p>Sensör verileri canlı çekiliyor...</p>
+        <button onclick="loadSensors()">Verileri Yenile</button>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // 1. Haritayı Başlat (Merkez: Konya Kapsül Platformu, Zoom: 13)
+        var map = L.map('map').setView([37.8715, 32.4921], 13);
+
+        // 2. Harita Katmanını Ekle (OpenStreetMap - Ücretsiz)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 3. Backend'den Veri Çeken Fonksiyon
+        function loadSensors() {
+            console.log("Veriler çekiliyor...");
+            
+            fetch('http://localhost:8080/api/sensors/all')
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Gelen Veri:", data);
+                    
+                    // Önceki markerları temizlemek gerekebilir ama şimdilik üstüne ekleyelim
+                    
+                    data.forEach(sensor => {
+                        // DİKKAT: GeoJSON [Boylam, Enlem] verir.
+                        // Leaflet [Enlem, Boylam] ister. TERS ÇEVİRİYORUZ!
+                        var lat = sensor.location.coordinates[1]; 
+                        var lon = sensor.location.coordinates[0];
+                        
+                        // Renk belirleme mantığı (Basit bir görselleştirme)
+                        var status = sensor.soilMoisture < 30 ? "🔴 Kritik (Kuru)" : "🟢 İyi";
+
+                        // Marker oluştur ve haritaya ekle
+                        L.marker([lat, lon])
+                            .addTo(map)
+                            .bindPopup(`
+                                <b>Sensör ID:</b> ${sensor.id}<br>
+                                <b>Nem:</b> %${sensor.soilMoisture}<br>
+                                <b>Durum:</b> ${status}<br>
+                                <small>${sensor.timestamp}</small>
+                            `);
+                    });
+                })
+                .catch(error => console.error('Hata:', error));
+        }
+
+        // Sayfa açılınca verileri yükle
+        loadSensors();
+
+        // Haritaya tıklayınca koordinatları konsola yaz (Test için faydalı)
+        map.on('click', function(e) {
+            console.log("Tıklanan Koordinat: " + e.latlng.lat + ", " + e.latlng.lng);
+            // İstersen buraya tıklanan yere yeni sensör ekleme formu açtırabilirsin!
+        });
+
+    </script>
+</body>
+</html>
