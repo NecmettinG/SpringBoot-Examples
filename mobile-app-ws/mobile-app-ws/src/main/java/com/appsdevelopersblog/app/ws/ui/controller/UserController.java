@@ -201,6 +201,48 @@ public class UserController {
         Link selfLink = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUserAddresses(id)).withSelfRel();
 
         return CollectionModel.of(returnValue, userLink, selfLink);
+
+        //Example Json output:
+        //{
+        //    "_embedded": {
+        //        "addressesRestList": [
+        //            {
+        //                "addressId": "Q8Uy81e1a4FtiwnvUhhwDhZVd2SKCt",
+        //                "city": "Istanbul",
+        //                "country": "Turkey",
+        //                "streetName": "Aydinlar Streeet",
+        //                "postalCode": "34569",
+        //                "type": "BILLING",
+        //                "_links": {
+        //                    "self": {
+        //                        "href": "http://localhost:8080/mobile-app-ws/users/yGCi6nNJ4Crjhu914GnjhpDBaxEjG9/addresses/Q8Uy81e1a4FtiwnvUhhwDhZVd2SKCt"
+        //                    }
+        //                }
+        //            },
+        //            {
+        //                "addressId": "uXCwSChzhLIXcLIlvOclJs0pI4PHRn",
+        //                "city": "Istanbul",
+        //                "country": "Turkey",
+        //                "streetName": "Aydinlar Streeet",
+        //                "postalCode": "34569",
+        //                "type": "SHIPPING",
+        //                "_links": {
+        //                    "self": {
+        //                        "href": "http://localhost:8080/mobile-app-ws/users/yGCi6nNJ4Crjhu914GnjhpDBaxEjG9/addresses/uXCwSChzhLIXcLIlvOclJs0pI4PHRn"
+        //                    }
+        //                }
+        //            }
+        //        ]
+        //    },
+        //    "_links": {
+        //        "user": {
+        //            "href": "http://localhost:8080/mobile-app-ws/users/yGCi6nNJ4Crjhu914GnjhpDBaxEjG9"
+        //        },
+        //        "self": {
+        //            "href": "http://localhost:8080/mobile-app-ws/users/yGCi6nNJ4Crjhu914GnjhpDBaxEjG9/addresses"
+        //        }
+        //    }
+        //}
     }
 
     //We will use HATEOAS on this api endpoint. We extended our AddressesRest class with RepresentationModel.
