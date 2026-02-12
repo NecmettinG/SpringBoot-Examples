@@ -59,6 +59,8 @@ public class WebSecurity {
 
         http.csrf((csrf) -> csrf.disable()) //We disabled cross-site request forgery which is redundant for our app. Because our api is stateless.
                 .authorizeHttpRequests((authz) -> authz.requestMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
+                        .permitAll()
+                        .requestMatchers(HttpMethod.GET, SecurityConstants.VERIFICATION_EMAIL_URL)
                         .permitAll().anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
                 .authenticationManager(authenticationManager).addFilter(authenticationFilter).addFilter(new AuthorizationFilter(authenticationManager))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
