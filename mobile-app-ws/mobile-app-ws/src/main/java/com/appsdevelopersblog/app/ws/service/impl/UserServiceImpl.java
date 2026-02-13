@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -70,6 +71,10 @@ public class UserServiceImpl implements UserService {
 
         //We are going to use Spring Security to encrypt the password.
         userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+        userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(publicUserId));
+
+        userEntity.setEmailVerificationStatus(false);
 
         UserEntity storedUserDetails = userRepository.save(userEntity); //This save method also returns Entity object btw.
 
@@ -198,7 +203,14 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException("email not found:" + username);
         }
 
-        return new User(username, userEntity.getEncryptedPassword(), new ArrayList<>());
+        //userEntity.getEmailVerificationStatus() is false by default. Because it is set to false, the user will be disabled and login is-
+        //-prevented. When we verify email verification token and set email verification status to true, user will be able to login when-
+        //-Spring framework calls this loadUserByUsername method.
+        return new User(username, userEntity.getEncryptedPassword(), userEntity.getEmailVerificationStatus(),
+                true, true, true, new ArrayList<>());
+
+        //Old Constructor:
+        //return new User(username, userEntity.getEncryptedPassword(), new ArrayList<>());
         //We are supposed to return a User instance in loadUserByUsername function. User implements UserDetails from spring.
         //First parameter will be username(email), second is encrypted password that will be decoded automatically.
         //and the third is a list of granted authorities, which are users roles and permissions.
@@ -206,5 +218,29 @@ public class UserServiceImpl implements UserService {
 
         //When we send a http request for login with username and password data,
         // Spring will invoke this method to locate user details from database.
+    }
+
+    @Override
+    public boolean verifyEmailToken(String token){
+
+        boolean returnValue = false;
+
+        UserEntity userEntity = userRepository.findUserByEmailVerificationToken(token);
+
+        if(userEntity != null){
+
+            boolean hasTokenExpired = Utils.hasTokenExpired(token);
+
+            if(!hasTokenExpired){
+
+                //We are gonna set email verification token to null once we are done with it. Email token is disposable.
+                userEntity.setEmailVerificationToken(null);
+                userEntity.setEmailVerificationStatus(Boolean.TRUE);
+                userRepository.save(userEntity);
+                returnValue = true;
+            }
+        }
+
+        return returnValue;
     }
 }

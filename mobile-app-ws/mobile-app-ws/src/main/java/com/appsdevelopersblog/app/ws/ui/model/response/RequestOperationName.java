@@ -4,5 +4,6 @@ package com.appsdevelopersblog.app.ws.ui.model.response;
 //We are going to use these enums for "operationName" attribute in OperationStatusModel class.
 public enum RequestOperationName {
 
-    DELETE
+    DELETE,
+    VERIFY_EMAIL
 }
