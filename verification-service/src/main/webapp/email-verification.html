@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification Service</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script language="JavaScript">
+        //This is a JQuery code snippet. When document is ready and javascript has been loaded, the code inside of the function will be executed.
+        $(document).ready(function () {
+            //this code is for reading url query string and extract the url parameters.
+            var urlParams = new URLSearchParams(location.search);
+            if (urlParams.has('token')){
+                //for testing. An alert box displaying token value will appear.
+                //alert("The token = " + urlParams.get('token'));
+
+                //that function will take the token and send it to HTTP GET request to our restful web service endpoint to verify the token.
+                verifyToken(urlParams.get('token'));
+            }
+
+            function verifyToken(tokenValue){
+
+                //JQuery Method. We are going to perform HTTP Get request to this url with query parameter called "token".
+                $.get('http://localhost:8080/mobile-app-ws/users/email-verification', {token: tokenValue})
+                    .done(function (response){//Once our restful API returns a response, this function inside of .done() will be triggered.
+                        //response parameter is the response of our restAPI. Default accept(header) is in json format.
+
+                        //These code blocks are for showing appropriate divs according to "operationResult" value in json response.
+                        //Return value is OperationStatusModel but jsonified format. It has "operationResult" attribute.
+                        if(response["operationResult"] === "SUCCESS"){
+
+                            $("#not-successful-result").attr("style", "display: none !important;");
+                            $("#successful-result").attr("style", "display: block !important;");
+                        }
+                        else{
+
+                            $("#successful-result").attr("style", "display: none !important;");
+                            $("#not-successful-result").attr("style", "display: block !important;");
+                        }
+                    });
+            }
+        });
+    </script>
+</head>
+<body>
+
+<div id="successful-result" style="display:none">Successful verification</div>
+<div id="not-successful-result" style="display:none">Verification link has expired</div>
+
+</body>
+</html>
