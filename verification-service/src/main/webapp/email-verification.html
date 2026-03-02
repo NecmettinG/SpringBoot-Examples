@@ -21,6 +21,7 @@
 
             function verifyToken(tokenValue){
 
+                //Everytime you reboot your EC2 instance, Public DNS address of EC2 instance will change.
                 //JQuery Method. We are going to perform HTTP Get request to this url with query parameter called "token".
                 $.get('http://localhost:8080/mobile-app-ws/users/email-verification', {token: tokenValue})
                     .done(function (response){//Once our restful API returns a response, this function inside of .done() will be triggered.
