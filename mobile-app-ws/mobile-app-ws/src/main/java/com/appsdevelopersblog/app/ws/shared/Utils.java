@@ -19,6 +19,7 @@ public class Utils{
 
     private final Random RANDOM = new SecureRandom();
     private final String alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private long plusMillisTime = SecurityConstants.EXPIRATION_TIME; //Initialized this variable earlier for avoiding unforeseen errors.
 
     public String generateUserId(int length){
 
@@ -76,6 +77,15 @@ public class Utils{
 
     public String generateEmailVerificationToken(String userId){
 
+        plusMillisTime = SecurityConstants.EXPIRATION_TIME;
+
+        return generateToken(userId);
+    }
+
+    public String generatePasswordResetToken(String userId){
+
+        plusMillisTime = SecurityConstants.PASSWORD_RESET_EXPIRATION_TIME;
+
         return generateToken(userId);
     }
 
@@ -87,7 +97,7 @@ public class Utils{
 
         return Jwts.builder()
                 .subject(userId)
-                .expiration(Date.from(now.plusMillis(SecurityConstants.EXPIRATION_TIME)))
+                .expiration(Date.from(now.plusMillis(plusMillisTime)))
                 .issuedAt(Date.from(now))
                 .signWith(secretKey)
                 .compact();

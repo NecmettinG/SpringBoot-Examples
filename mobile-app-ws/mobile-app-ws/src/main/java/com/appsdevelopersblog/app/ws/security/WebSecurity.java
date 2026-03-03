@@ -61,7 +61,10 @@ public class WebSecurity {
                 .authorizeHttpRequests((authz) -> authz.requestMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, SecurityConstants.VERIFICATION_EMAIL_URL)
-                        .permitAll().anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
+                        .permitAll()
+                        .requestMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_REQUEST_URL)
+                        .permitAll()
+                        .anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
                 .authenticationManager(authenticationManager).addFilter(authenticationFilter).addFilter(new AuthorizationFilter(authenticationManager))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
                 //We add new authentication filter with creating AuthenticationFilter object, and AuthenticationManager object will be passed-
