@@ -64,6 +64,8 @@ public class WebSecurity {
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_REQUEST_URL)
                         .permitAll()
+                        .requestMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_URL)
+                        .permitAll()
                         .anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
                 .authenticationManager(authenticationManager).addFilter(authenticationFilter).addFilter(new AuthorizationFilter(authenticationManager))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
