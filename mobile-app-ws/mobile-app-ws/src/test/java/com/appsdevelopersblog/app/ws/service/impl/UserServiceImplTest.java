@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -70,5 +71,21 @@ public class UserServiceImplTest {
         /*We are asserting that userEntity's firstname(which is "Necmettin") and userDto's firstname are same values. If they are not,-
         -test will fail!*/
         assertEquals("Necmettin", userDto.getFirstName());
+    }
+
+
+    //This test is for testing UsernameNotFoundException in getUser method in UserServiceImpl.
+    @Test
+    final void testGetUser_UsernameNotFoundException(){
+
+        when(userRepository.findByEmail(anyString())).thenReturn(null);
+
+        /*We asserted Exception with assertThrows. First parameter takes the expected exception type, and second one takes the method-
+        that throws exception. If expected and thrown exceptions are same, test will pass. Method will be inside of lambda expression.
+        We simply handle exceptions with assertion.*/
+        assertThrows(UsernameNotFoundException.class,
+                ()->{
+                    userService.getUser("kraziboi@test.com");
+                });
     }
 }
