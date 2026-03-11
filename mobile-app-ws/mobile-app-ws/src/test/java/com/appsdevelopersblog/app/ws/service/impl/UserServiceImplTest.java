@@ -4,6 +4,7 @@ import com.appsdevelopersblog.app.ws.io.entity.AddressEntity;
 import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
 import com.appsdevelopersblog.app.ws.io.repository.PasswordResetTokenRepository;
 import com.appsdevelopersblog.app.ws.io.repository.UserRepository;
+import com.appsdevelopersblog.app.ws.shared.AmazonSES;
 import com.appsdevelopersblog.app.ws.shared.Utils;
 import com.appsdevelopersblog.app.ws.shared.dto.AddressDto;
 import com.appsdevelopersblog.app.ws.shared.dto.UserDto;
@@ -44,6 +45,9 @@ public class UserServiceImplTest {
 
     @Mock
     BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Mock
+    AmazonSES amazonSES;
 
     /*We want to access getUser() method in UserServiceImpl service class but our UserServiceImpl is a class under test.
     We cant use @Mock on this class. Also we are using so many @Autowired annotations for dependency injection into many classes-
@@ -126,6 +130,10 @@ public class UserServiceImplTest {
         when(utils.generateUserId(anyInt())).thenReturn(userId);
         when(bCryptPasswordEncoder.encode(anyString())).thenReturn(password);
         when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
+
+        /*We want to create unit test, not integration test. So we wanted to exclude AmazonSES class to execute. Our test's performance-
+        will be increased because we won't wait amazon email service response!*/
+        doNothing().when(amazonSES).verifyEmail(any(UserDto.class));
 
         UserDto userDto = new UserDto();
         userDto.setAddresses(getAddressesDto());
