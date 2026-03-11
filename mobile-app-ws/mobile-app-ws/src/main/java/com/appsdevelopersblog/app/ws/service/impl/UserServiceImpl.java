@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
 
         if(userRepository.findByEmail(user.getEmail()) != null){
 
-            throw new IllegalStateException("Email already exists");
+            throw new UserServiceException("Email already exists");
         }
 
         //We get the AddressDto list from user and assigned the user and generated public address id to each AddressDto object.

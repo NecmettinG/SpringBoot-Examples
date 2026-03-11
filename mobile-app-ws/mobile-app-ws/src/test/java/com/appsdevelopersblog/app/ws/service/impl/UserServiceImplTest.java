@@ -1,5 +1,6 @@
 package com.appsdevelopersblog.app.ws.service.impl;
 
+import com.appsdevelopersblog.app.ws.exceptions.UserServiceException;
 import com.appsdevelopersblog.app.ws.io.entity.AddressEntity;
 import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
 import com.appsdevelopersblog.app.ws.io.repository.PasswordResetTokenRepository;
@@ -119,6 +120,24 @@ public class UserServiceImplTest {
         assertThrows(UsernameNotFoundException.class,
                 ()->{
                     userService.getUser("kraziboi@test.com");
+                });
+    }
+
+    @Test
+    final void testCreateUser_CreateUserServiceException(){
+
+        when(userRepository.findByEmail(anyString())).thenReturn(userEntity);
+
+        UserDto userDto = new UserDto();
+        userDto.setAddresses(getAddressesDto());
+        userDto.setEmail("necmettingedikli611@gmail.com");
+        userDto.setFirstName("Necmettin");
+        userDto.setLastName("Gedikli");
+        userDto.setPassword("hiremebro");
+
+        assertThrows(UserServiceException.class,
+                ()->{
+                    userService.createUser(userDto);
                 });
     }
 
