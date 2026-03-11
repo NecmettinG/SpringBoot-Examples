@@ -1,5 +1,6 @@
 package com.appsdevelopersblog.app.ws.service.impl;
 
+import com.appsdevelopersblog.app.ws.io.entity.AddressEntity;
 import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
 import com.appsdevelopersblog.app.ws.io.repository.PasswordResetTokenRepository;
 import com.appsdevelopersblog.app.ws.io.repository.UserRepository;
@@ -13,16 +14,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 //Use the @ExtendWith annotation and remove manual initialization entirely.
 //It automatically initializes @Mock and @InjectMocks fields before each test.
@@ -68,10 +72,12 @@ public class UserServiceImplTest {
         //We are going to hard code attribute values.
         userEntity.setId(1L);
         userEntity.setFirstName("Necmettin");
+        userEntity.setLastName("Gedikli");
         userEntity.setUserId(userId);
         userEntity.setEncryptedPassword("mv379pdjhn54673");
         userEntity.setEmail("necmettingedikli611@gmail.com");
         userEntity.setEmailVerificationToken("2389slkfjdgkls320948327");
+        userEntity.setAddresses(getAddressesEntity());
     }
 
     //This test is for testing getUser method from UserServiceImpl
@@ -121,20 +127,60 @@ public class UserServiceImplTest {
         when(bCryptPasswordEncoder.encode(anyString())).thenReturn(password);
         when(userRepository.save(any(UserEntity.class))).thenReturn(userEntity);
 
-        AddressDto addressDto = new AddressDto();
-        addressDto.setType("shipping");
-        addressDto.setCity("Istanbul");
-
-        List<AddressDto> addresses = new ArrayList<>();
-        addresses.add(addressDto);
-
         UserDto userDto = new UserDto();
-        userDto.setAddresses(addresses);
+        userDto.setAddresses(getAddressesDto());
+        userDto.setEmail("necmettingedikli611@gmail.com");
+        userDto.setFirstName("Necmettin");
+        userDto.setLastName("Gedikli");
+        userDto.setPassword("hiremebro");
 
         UserDto storedUserDetails = userService.createUser(userDto);
 
         assertNotNull(storedUserDetails);
 
         assertEquals(userEntity.getFirstName(), storedUserDetails.getFirstName());
+        assertEquals(userEntity.getLastName(), storedUserDetails.getLastName());
+        assertNotNull(storedUserDetails.getUserId());
+        assertEquals(storedUserDetails.getAddresses().size(), userEntity.getAddresses().size());
+
+        //We use utils.generateAddressId(30) in a for loop inside createUser method in our service. We are going to test it like this.
+        //times() will take the size of addresses list because in createUser method, we execute for loop in times of list size.
+        verify(utils, times(storedUserDetails.getAddresses().size())).generateAddressId(30);
+        //We also use bCryptPasswordEncoder one time in createUser method. Encode takes password as parameter.
+        verify(bCryptPasswordEncoder, times(1)).encode(userDto.getPassword());
+        //we also test userRepository and save() method inside of createUser.
+        verify(userRepository, times(1)).save(any(UserEntity.class));
+    }
+
+    private List<AddressDto> getAddressesDto(){
+
+        AddressDto shippingAddressDto = new AddressDto();
+        shippingAddressDto.setType("shipping");
+        shippingAddressDto.setCity("Istanbul");
+        shippingAddressDto.setCountry("Turkey");
+        shippingAddressDto.setPostalCode("12345");
+        shippingAddressDto.setStreetName("1st street");
+
+        AddressDto billingAddressDto = new AddressDto();
+        billingAddressDto.setType("billing");
+        billingAddressDto.setCity("Istanbul");
+        billingAddressDto.setCountry("Turkey");
+        billingAddressDto.setPostalCode("12345");
+        billingAddressDto.setStreetName("1st street");
+
+        List<AddressDto> addresses = new ArrayList<>();
+        addresses.add(shippingAddressDto);
+        addresses.add(billingAddressDto);
+
+        return addresses;
+    }
+
+    private List<AddressEntity> getAddressesEntity(){
+
+        List<AddressDto> addresses = getAddressesDto();
+
+        Type listType = new TypeToken<List<AddressEntity>>(){}.getType();
+
+        return new ModelMapper().map(addresses, listType);
     }
 }
