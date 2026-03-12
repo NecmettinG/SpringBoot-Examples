@@ -52,11 +52,16 @@ public class UserController {
     @GetMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public UserRest getUser(@PathVariable("id") String id) {
 
-        UserRest returnValue = new UserRest();
+        UserRest returnValue;
 
         UserDto userDto = userService.getUserByUserId(id);
 
-        BeanUtils.copyProperties(userDto, returnValue);
+        //BeanUtils.copyProperties(userDto, returnValue);
+        /*We have to use ModelMapper to map our addresses list from UserDto to UserRest. If we use BeanUtils, we will get error in our-
+        -UserControllerTest class. userRest.getAddresses() would be null in that case.*/
+        ModelMapper modelMapper = new ModelMapper();
+
+        returnValue = modelMapper.map(userDto, UserRest.class);
 
         return returnValue;
     }

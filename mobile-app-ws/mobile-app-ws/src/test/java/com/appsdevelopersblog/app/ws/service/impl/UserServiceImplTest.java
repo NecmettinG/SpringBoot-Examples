@@ -97,7 +97,7 @@ public class UserServiceImplTest {
         when(userRepository.findByEmail(anyString())).thenReturn(userEntity);
 
         //This UserDto actually returns from our UserService class!
-        UserDto userDto = userService.getUser("kraziboi@test.com");
+        UserDto userDto = userService.getUser("necmettingedikli611@gmail.com");
 
         //We assert that userDto is not null. If our userDto is null, test will fail!
         assertNotNull(userDto);
@@ -119,7 +119,7 @@ public class UserServiceImplTest {
         We simply handle exceptions with assertion.*/
         assertThrows(UsernameNotFoundException.class,
                 ()->{
-                    userService.getUser("kraziboi@test.com");
+                    userService.getUser("necmettingedikli611@gmail.com");
                 });
     }
 
