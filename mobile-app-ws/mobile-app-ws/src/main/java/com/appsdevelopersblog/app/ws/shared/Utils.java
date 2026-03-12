@@ -58,6 +58,7 @@ public class Utils{
             JwtParser parser = Jwts.parser().verifyWith(key).build();
 
             //We get claims inside of our token. We are able to access some information like token expiration date etc.
+            //We will get ExpiredJwtException in this line if our token is expired!
             Claims claims = parser.parseSignedClaims(token).getPayload();
 
             //We get token expiration date from our claims.
@@ -68,7 +69,8 @@ public class Utils{
             returnValue = tokenExpirationDate.before(todayDate);
         }
         catch (ExpiredJwtException ex) {
-            //This is for ensuring if the code below has something wrong.
+            //This is for ensuring if the code above has something wrong. We will make returnValue true if we encounter ExpiredJwtException.
+            //It means our JWT is expired and we get an exception because of this.
             returnValue = true;
         }
 

@@ -46,7 +46,7 @@ public class UtilsTest {
     }
 
     @Test
-    final void testHasTokenExpired(){
+    final void testHasTokenNotExpired(){
 
         //We are generating a sample token. I we hardcode a token here, Eventually it will be invalid and our test case will fail.
         String token = utils.generateEmailVerificationToken("42rjnvk23432mfjg");
@@ -63,5 +63,18 @@ public class UtilsTest {
         Boolean hasTokenExpired = Utils.hasTokenExpired(token);
 
         assertFalse(hasTokenExpired);
+    }
+
+    //We are going to test expired tokens in this test case.
+    @Test
+    final void testHasTokenExpired(){
+
+        //This is an expired token. We will test if we can detect expired tokens in our tests.
+        String expiredToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJnZWRpa2xpbmVjbzYxQG1haWwuY29tIiwiZXhwIjoxNzYyMTY2NTcyLCJpYXQiOjE3NjEzMDI1NzJ9.8hl4H9LMCbNbURzGtcH5Gn4UYlbhC4tmogVRm8N1XNXX829xHnhdP6YZadevLmmfnBfIVjRcqUnHjcDNSC3rVg";
+
+        Boolean hasTokenExpired = Utils.hasTokenExpired(expiredToken);
+
+        //we will assert hasTokenExpired as true. If our token is not expired, we fill fail in this test.
+        assertTrue(hasTokenExpired);
     }
 }
