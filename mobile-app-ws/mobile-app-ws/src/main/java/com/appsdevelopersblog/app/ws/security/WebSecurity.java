@@ -66,6 +66,8 @@ public class WebSecurity {
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_URL)
                         .permitAll()
+                        .requestMatchers(SecurityConstants.H2_CONSOLE)
+                        .permitAll()
                         .anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
                 .authenticationManager(authenticationManager).addFilter(authenticationFilter).addFilter(new AuthorizationFilter(authenticationManager))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -77,6 +79,10 @@ public class WebSecurity {
 
         // /users api endpoint will be public and open to all users, and all other api endpoints will be protected.
         // Only authenticated users are allowed to invoke them.
+
+        //This is for being able to use h2 database! A better/safer option is often sameOrigin() instead of fully disabling frame protection.
+        //http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable())) fully disables frame protection which is bad!
+        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
         return http.build(); //We are going to build and return http security object from this method.
     }

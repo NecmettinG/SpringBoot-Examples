@@ -16,6 +16,7 @@ public class SecurityConstants {
     public static final String VERIFICATION_EMAIL_URL = "/users/email-verification";
     public static final String PASSWORD_RESET_REQUEST_URL = "/users/password-reset-request";
     public static final String PASSWORD_RESET_URL = "/users/password-reset";
+    public static final String H2_CONSOLE = "/h2-console/**";
     //We will define our Token Secret value inside of application.properties file for security reasons. We are going to read that value from there.
     //This is because Token Secret value is updated time to time for security. And it is better to define it in properties file.
     //public static final String TOKEN_SECRET="jf9i4jgu83nfl0jf9i4jgu83nfl0jf9i4jgu83nfl0jf9i4jgu83nfl0jf9i4jgu83nfl0jf9i4jgu83nfl0";
