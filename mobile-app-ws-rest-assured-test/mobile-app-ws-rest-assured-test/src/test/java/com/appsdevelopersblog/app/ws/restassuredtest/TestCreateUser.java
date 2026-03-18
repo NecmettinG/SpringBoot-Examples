@@ -2,6 +2,9 @@ package com.appsdevelopersblog.app.ws.restassuredtest;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestCreateUser {
 
@@ -43,8 +46,16 @@ public class TestCreateUser {
         shippingAddress.put("postalCode", "15963");
         shippingAddress.put("type", "shipping");
 
+        Map<String, Object> billingAddress = new HashMap<>();
+        billingAddress.put("city", "Istanbul");
+        billingAddress.put("country", "Turkey");
+        billingAddress.put("streetName", "aydinlar street");
+        billingAddress.put("postalCode", "15963");
+        billingAddress.put("type", "billing");
+
         //We add user address hashmap into our arraylist named userAddresses.
         userAddresses.add(shippingAddress);
+        userAddresses.add(billingAddress);
 
         //This hashmap is for creating request body of a user.
         Map<String, Object> userDetails = new HashMap<>();
@@ -71,5 +82,33 @@ public class TestCreateUser {
         String userId = response.jsonPath().getString("userId");
 
         assertNotNull(userId);
+        assertTrue(userId.length() == 30);
+
+        //We will convert Response instance's body into String object.
+        String bodyString = response.body().asString();
+
+        try{
+            //Then we will convert our stringified response into Json format!
+            JSONObject responseBodyJson = new JSONObject(bodyString);
+            /*We created a json array for addresses because our addresses are stored in an array list. Our main API also gives-
+            addresses as json array.
+             */
+            JSONArray addresses = responseBodyJson.getJSONArray("addresses");
+
+            assertNotNull(addresses);
+
+            //We are asserting that our addresses Json array has 1 address element currently.
+            assertTrue(addresses.length() == 2);
+
+            String addressId = addresses.getJSONObject(0).getString("addressId");
+            assertNotNull(addressId);
+            //Our utils class generates userId and addressId with length of 30 characters.
+            assertTrue(addressId.length() == 30);
+        }
+        catch (JSONException e){
+
+            fail(e.getMessage());
+        }
+
     }
 }
