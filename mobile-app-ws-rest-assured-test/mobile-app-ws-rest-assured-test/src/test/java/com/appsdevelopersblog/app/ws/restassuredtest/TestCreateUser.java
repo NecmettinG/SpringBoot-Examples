@@ -42,16 +42,16 @@ public class TestCreateUser {
         Map<String, Object> shippingAddress = new HashMap<>();
         shippingAddress.put("city", "Istanbul");
         shippingAddress.put("country", "Turkey");
-        shippingAddress.put("streetName", "aydinlar street");
-        shippingAddress.put("postalCode", "15963");
-        shippingAddress.put("type", "shipping");
+        shippingAddress.put("streetName", "Aydinlar Street");
+        shippingAddress.put("postalCode", "34569");
+        shippingAddress.put("type", "SHIPPING");
 
         Map<String, Object> billingAddress = new HashMap<>();
         billingAddress.put("city", "Istanbul");
         billingAddress.put("country", "Turkey");
-        billingAddress.put("streetName", "aydinlar street");
-        billingAddress.put("postalCode", "15963");
-        billingAddress.put("type", "billing");
+        billingAddress.put("streetName", "Aydinlar Street");
+        billingAddress.put("postalCode", "34569");
+        billingAddress.put("type", "BILLING");
 
         //We add user address hashmap into our arraylist named userAddresses.
         userAddresses.add(shippingAddress);
@@ -62,7 +62,7 @@ public class TestCreateUser {
         userDetails.put("firstName", "Necmettin");
         userDetails.put("lastName", "Gedikli");
         userDetails.put("email", "necmettingedikli611@gmail.com");
-        userDetails.put("password", "794378");
+        userDetails.put("password", "12345678");
         userDetails.put("addresses", userAddresses); //we put our userAddresses array list into our userDetails hashmap.
 
         //We are creating a Response object. Json response will be parsed and put into response.

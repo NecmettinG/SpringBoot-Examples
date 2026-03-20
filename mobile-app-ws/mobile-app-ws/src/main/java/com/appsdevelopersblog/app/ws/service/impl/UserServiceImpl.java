@@ -156,9 +156,13 @@ public class UserServiceImpl implements UserService {
             throw new UsernameNotFoundException("User not found:" + userId);
         }
 
-        UserDto returnValue = new UserDto();
+        ModelMapper modelMapper = new ModelMapper();
+        /*We have to change this BeanUtils with ModelMapper because whenever we try to copy our addresses list from UserEntity into-
+        UserDto instance, our addresses list will be null. returnValue.getAddresses() is null with BeanUtils. ModelMapper solves this issue!
+        */
+        //BeanUtils.copyProperties(userEntity, returnValue);
 
-        BeanUtils.copyProperties(userEntity, returnValue);
+        UserDto returnValue = modelMapper.map(userEntity, UserDto.class);
 
         return returnValue;
     }
