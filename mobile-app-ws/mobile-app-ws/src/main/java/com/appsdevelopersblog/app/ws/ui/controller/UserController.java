@@ -134,15 +134,18 @@ public class UserController {
     )
     public UserRest updateUser(@RequestBody UserDetailsRequestModel userDetails, @PathVariable("id") String id) {
 
-        UserRest returnValue = new UserRest();
-
         UserDto userDto = new UserDto();
 
         BeanUtils.copyProperties(userDetails, userDto);
 
         UserDto updatedUser = userService.updateUser(id, userDto);
 
-        BeanUtils.copyProperties(updatedUser, returnValue);
+        //We still have addresses list issue because of BeanUtils. Switching to ModelMapper.
+        //BeanUtils.copyProperties(updatedUser, returnValue);
+
+        ModelMapper modelMapper = new ModelMapper();
+
+        UserRest returnValue = modelMapper.map(updatedUser, UserRest.class);
 
         return returnValue;
     }

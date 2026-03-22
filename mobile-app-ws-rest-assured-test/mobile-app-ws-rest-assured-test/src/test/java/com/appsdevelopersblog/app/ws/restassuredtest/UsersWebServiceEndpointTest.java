@@ -27,6 +27,7 @@ public class UsersWebServiceEndpointTest {
 
     private static String userId;
     private static String authorizationHeader;
+    private static List<Map<String, String>> addresses;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -43,7 +44,7 @@ public class UsersWebServiceEndpointTest {
     @Test
     final void a() {
 
-
+        //framework will convert this map into json object!
         Map<String, String> loginDetails = new HashMap<>();
 
         loginDetails.put("email", EMAIL_ADDRESS);
@@ -94,7 +95,7 @@ public class UsersWebServiceEndpointTest {
         String lastName = response.jsonPath().getString("lastName");
 
         //getList turns json list into array list! it holds list of maps.
-        List<Map<String, String>> addresses = response.jsonPath().getList("addresses");
+        addresses = response.jsonPath().getList("addresses");
 
         String addressId = addresses.get(0).get("addressId"); //We fetched index 0's userId value.
 
@@ -107,5 +108,42 @@ public class UsersWebServiceEndpointTest {
 
         assertTrue(addresses.size() == 2);
         assertTrue(addressId.length() == 30);
+    }
+
+    //Test Update User Details.
+    @Test
+    final void c(){
+
+        Map<String, Object> userDetails = new HashMap<>();
+
+        userDetails.put("firstName", "Neco");
+        userDetails.put("lastName", "Gedikli");
+
+        Response response = given().
+                contentType(JSON).
+                accept(JSON).
+                header("Authorization", authorizationHeader).
+                pathParam("id", userId).
+                body(userDetails).
+                when().
+                put(CONTEXT_PATH + "/users/{id}").
+                then().
+                statusCode(200).
+                contentType(JSON).
+                extract().
+                response();
+
+        String firstName = response.jsonPath().getString("firstName");
+        String lastName = response.jsonPath().getString("lastName");
+        List<Map<String, String>> storedAddresses = response.jsonPath().getList("addresses");
+
+        assertEquals("Neco", firstName);
+        assertEquals("Gedikli", lastName);
+        assertNotNull(storedAddresses);
+
+        //We are checking the size equality of addresses list of non-updated user and updated user. They both have to be 2.
+        assertTrue(addresses.size() == storedAddresses.size());
+
+        assertEquals(addresses.get(0).get("streetName"), storedAddresses.get(0).get("streetName"));
     }
 }

@@ -180,16 +180,21 @@ public class UserServiceImpl implements UserService {
             throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
         }
 
-        UserDto returnValue = new UserDto();
-
         userEntity.setFirstName(user.getFirstName());
         userEntity.setLastName(user.getLastName());
+
         //We can also update our password and encrypt that password again. Teacher didn't write this but I decided to add this.
-        userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        //We added password reset feature with AWS SES :D. I am commenting this code.
+        //[DEPRECATED]
+        //userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 
         UserEntity updatedUserDetails = userRepository.save(userEntity);
 
-        BeanUtils.copyProperties(updatedUserDetails, returnValue);
+        //We still have addresses list issue because of BeanUtils. Switching to ModelMapper.
+        //BeanUtils.copyProperties(updatedUserDetails, returnValue);
+
+        ModelMapper modelMapper = new ModelMapper();
+        UserDto returnValue = modelMapper.map(updatedUserDetails, UserDto.class);
 
         return returnValue;
     }
