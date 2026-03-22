@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Disabled;
 
 import java.util.HashMap;
 import java.util.List;
@@ -145,5 +146,32 @@ public class UsersWebServiceEndpointTest {
         assertTrue(addresses.size() == storedAddresses.size());
 
         assertEquals(addresses.get(0).get("streetName"), storedAddresses.get(0).get("streetName"));
+    }
+
+    //Test The Delete User Details.
+    @Test
+    @Disabled
+    final void d(){
+
+        Response response = given().
+                header("Authorization",authorizationHeader).
+                accept(JSON).
+                pathParam("id", userId).
+                when().
+                delete(CONTEXT_PATH + "/users/{id}").
+                then().
+                statusCode(200).
+                contentType(JSON).
+                extract().
+                response();
+
+        String operationResult = response.jsonPath().getString("operationResult");
+        String operationName = response.jsonPath().getString("operationName");
+
+        assertNotNull(operationResult);
+        assertNotNull(operationName);
+
+        assertEquals("DELETE", operationName);
+        assertEquals("SUCCESS", operationResult);
     }
 }
