@@ -1,9 +1,11 @@
 package com.appsdevelopersblog.app.ws.io.repository;
 
 import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -48,6 +50,18 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> { //We c
     //Advanced LIKE expression allows us to select records that begin with a certain string, or contain a certain string.
     /*"%" in the query represents 0 characters, one character or many character. It doesn't matter what is the beginning of the string or
     how it ends with. It is enough to contain that keyword in the string*/
-    @Query(value = "select * from Users u where first_name LIKE %:keyword% or last_name LIKE %:keyword%", nativeQuery = true)
+    @Query(value = "select * from Users u where u.first_name LIKE %:keyword% or u.last_name LIKE %:keyword%", nativeQuery = true)
     List<UserEntity> findUserByKeyword(@Param("keyword") String keyword);
+
+    /*We are going to return only first_name and last_name fields from database. List will hold array of objects instead of UserEntity-
+    because we only return first_name and last_name.*/
+    @Query(value = "select u.first_name, u.last_name from Users u where u.first_name LIKE %:keyword% or u.last_name LIKE %:keyword%", nativeQuery = true)
+    List<Object[]> findUserByFirstNameAndLastNameByKeyword(@Param("keyword") String keyword);
+
+    @Transactional /*You already know transactional. It also rolls back db changes if we encounter an error during execution. It is actu-
+    -ally a service method annotation but we put here because of our test.*/
+    @Modifying //For update methods to update records in database, we have to use @Modifying annotation
+    @Query(value = "update Users u set u.email_verification_status =:emailVerificationStatus where u.user_id=:userId", nativeQuery = true)
+    void updateUserEmailVerificationStatus(@Param("emailVerificationStatus") boolean emailVerificationStatus,
+                                           @Param("userId") String userId);
 }

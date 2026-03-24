@@ -114,6 +114,34 @@ public class UserRepositoryTest {
         assertTrue(user.getLastName().contains(keyword) || user.getFirstName().contains(keyword));
     }
 
+    @Test
+    final void testFindUserByFirstNameAndLastNameByKeyword(){
+
+        String keyword = "Necm";
+
+        List<Object[]> users = userRepository.findUserByFirstNameAndLastNameByKeyword(keyword);
+
+        assertNotNull(users);
+
+        assertTrue(users.size() == 2);
+
+        Object[] user = users.get(0);
+
+        //arrays use .length, List uses .size(). Memorize them :)
+        assertTrue(user.length == 2);
+
+        //index 0 will contain firstname and index 1 will contain lastname because we wrote "select u.first_name, u.last_name from Users u..."
+        String userFirstName = String.valueOf(user[0]);
+        String userLastName = String.valueOf(user[1]);
+
+        assertNotNull(userFirstName);
+        assertNotNull(userLastName);
+
+        System.out.println("First Name = " + userFirstName+"\nLast Name = " + userLastName);
+
+        assertTrue(userFirstName.contains(keyword) || userLastName.contains(keyword));
+    }
+
     private void createRecords(){
 
         //We are going to create a user here beforehand to test our methods.
