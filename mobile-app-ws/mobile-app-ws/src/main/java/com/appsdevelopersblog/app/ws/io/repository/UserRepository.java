@@ -44,4 +44,10 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> { //We c
     //Instead of using ?1, this time we use :lastName which represents the certain method argument with annotation @Param("lastName").
     @Query(value = "select * from Users u where u.last_name = :lastName", nativeQuery = true)
     List<UserEntity> findUserByLastName(@Param("lastName") String lastName);
+
+    //Advanced LIKE expression allows us to select records that begin with a certain string, or contain a certain string.
+    /*"%" in the query represents 0 characters, one character or many character. It doesn't matter what is the beginning of the string or
+    how it ends with. It is enough to contain that keyword in the string*/
+    @Query(value = "select * from Users u where first_name LIKE %:keyword% or last_name LIKE %:keyword%", nativeQuery = true)
+    List<UserEntity> findUserByKeyword(@Param("keyword") String keyword);
 }
