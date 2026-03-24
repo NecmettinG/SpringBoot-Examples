@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -39,4 +40,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> { //We c
     //This method is created only for demonstrating multiple method arguments usage for native query.
     @Query(value = "select * from Users u where u.first_name = ?1 and u.last_name = ?2", nativeQuery = true)
     List<UserEntity> findUserByFirstNameAndLastName(String firstName, String lastName);
+
+    //Instead of using ?1, this time we use :lastName which represents the certain method argument with annotation @Param("lastName").
+    @Query(value = "select * from Users u where u.last_name = :lastName", nativeQuery = true)
+    List<UserEntity> findUserByLastName(@Param("lastName") String lastName);
 }

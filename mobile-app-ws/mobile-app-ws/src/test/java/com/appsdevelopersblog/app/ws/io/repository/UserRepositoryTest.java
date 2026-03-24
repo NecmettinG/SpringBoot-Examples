@@ -81,6 +81,22 @@ public class UserRepositoryTest {
         assertTrue(user.getFirstName().equals(firstName));
     }
 
+    @Test
+    final void testFindUserByLastName(){
+
+        String lastName = "Gedikli";
+
+        List<UserEntity> users = userRepository.findUserByLastName(lastName);
+
+        assertNotNull(users);
+
+        assertTrue(users.size() == 2);
+
+        UserEntity user = users.get(0);
+
+        assertTrue(user.getLastName().equals(lastName));
+    }
+
     private void createRecords(){
 
         //We are going to create a user here beforehand to test our methods.
