@@ -15,9 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 //This class is an integration test and it will communicate with the database. It will save data, fetch data etc.
@@ -30,11 +28,60 @@ public class UserRepositoryTest {
     @Autowired
     UserRepository userRepository;
 
+    static boolean recordsCreated = false;
+
     @BeforeEach
     void setUp() throws Exception {
 
-        // Ensure clean state for each test method.
-        userRepository.deleteAll();
+        if(!recordsCreated) {
+            createRecords();
+        }
+    }
+
+    @Test
+    final void testGetVerifiedUsers(){
+
+        //first parameter is the start number for pages and second parameter is size for each page.
+        Pageable pageableRequest1 = PageRequest.of(0, 1);
+
+        Page<UserEntity> page1 = userRepository.findAllUsersWithConfirmedEmailAddress(pageableRequest1);
+
+        //instead of changing the page number in each test execution, I created a new Pageable for checking the second page.
+        Pageable pageableRequest2 = PageRequest.of(1, 1);
+
+        Page<UserEntity> page2 = userRepository.findAllUsersWithConfirmedEmailAddress(pageableRequest1);
+
+        assertNotNull(page1);
+        assertNotNull(page2);
+
+        List<UserEntity> userEntities1 = page1.getContent();
+        List<UserEntity> userEntities2 = page1.getContent();
+
+        assertNotNull(userEntities1);
+        assertNotNull(userEntities2);
+
+        assertTrue(userEntities1.size() == 1);
+        assertTrue(userEntities2.size() == 1);
+
+    }
+
+    @Test
+    final void testFindUserByFirstName(){
+
+        String firstName = "Necmettin";
+
+        List<UserEntity> users = userRepository.findUserByFirstName(firstName);
+
+        assertNotNull(users);
+
+        assertTrue(users.size() == 2);
+
+        UserEntity user = users.get(0);
+
+        assertTrue(user.getFirstName().equals(firstName));
+    }
+
+    private void createRecords(){
 
         //We are going to create a user here beforehand to test our methods.
         UserEntity userEntity = new UserEntity();
@@ -83,32 +130,7 @@ public class UserRepositoryTest {
         userEntity2.setAddresses(addresses2);
 
         userRepository.save(userEntity2);
-    }
 
-    @Test
-    final void testGetVerifiedUsers(){
-
-        //first parameter is the start number for pages and second parameter is size for each page.
-        Pageable pageableRequest1 = PageRequest.of(0, 1);
-
-        Page<UserEntity> page1 = userRepository.findAllUsersWithConfirmedEmailAddress(pageableRequest1);
-
-        //instead of changing the page number in each test execution, I created a new Pageable for checking the second page.
-        Pageable pageableRequest2 = PageRequest.of(1, 1);
-
-        Page<UserEntity> page2 = userRepository.findAllUsersWithConfirmedEmailAddress(pageableRequest1);
-
-        assertNotNull(page1);
-        assertNotNull(page2);
-
-        List<UserEntity> userEntities1 = page1.getContent();
-        List<UserEntity> userEntities2 = page1.getContent();
-
-        assertNotNull(userEntities1);
-        assertNotNull(userEntities2);
-
-        assertTrue(userEntities1.size() == 1);
-        assertTrue(userEntities2.size() == 1);
-
+        recordsCreated = true;
     }
 }

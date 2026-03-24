@@ -9,6 +9,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 //We deleted CrudRepository<UserEntity, Long> for pagination in get request that returns list of users.
 //Teacher put PagingAndSortingRepository<UserEntity, Long> but .save() methods doesn't work so We have to use JpaRepository<UserEntity, Long>-
 //-instead.
@@ -29,4 +31,12 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> { //We c
             countQuery = "select count(*) from Users u where u.EMAIL_VERIFICATION_STATUS = true",
             nativeQuery = true)
     Page<UserEntity> findAllUsersWithConfirmedEmailAddress(Pageable pageableRequest);
+
+    //?1 means place a value of method argument one. Our first parameter is firstName btw. We will replace ?1 with firstName's value.
+    @Query(value = "select * from Users u where u.first_name = ?1", nativeQuery = true)
+    List<UserEntity> findUserByFirstName(String firstName);
+
+    //This method is created only for demonstrating multiple method arguments usage for native query.
+    @Query(value = "select * from Users u where u.first_name = ?1 and u.last_name = ?2", nativeQuery = true)
+    List<UserEntity> findUserByFirstNameAndLastName(String firstName, String lastName);
 }
