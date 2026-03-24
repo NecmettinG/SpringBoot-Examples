@@ -65,6 +65,7 @@ public class UserRepositoryTest {
         userEntity2.setLastName("Gedikli");
         userEntity2.setUserId("219010111sjgfhkjdsgfh1");
         userEntity2.setEncryptedPassword("hire-me-bro");
+        //The reason we must register another email is becuase we annotated email attribute as unique in UserEntity class!
         userEntity2.setEmail("necmettingedikli611+2@gmail.com");
         userEntity2.setEmailVerificationStatus(true);
 
@@ -88,15 +89,26 @@ public class UserRepositoryTest {
     final void testGetVerifiedUsers(){
 
         //first parameter is the start number for pages and second parameter is size for each page.
-        Pageable pageableRequest = PageRequest.of(1, 1);
+        Pageable pageableRequest1 = PageRequest.of(0, 1);
 
-        Page<UserEntity> page = userRepository.findAllUsersWithConfirmedEmailAddress(pageableRequest);
+        Page<UserEntity> page1 = userRepository.findAllUsersWithConfirmedEmailAddress(pageableRequest1);
 
-        assertNotNull(page);
+        //instead of changing the page number in each test execution, I created a new Pageable for checking the second page.
+        Pageable pageableRequest2 = PageRequest.of(1, 1);
 
-        List<UserEntity> userEntities = page.getContent();
-        assertNotNull(userEntities);
-        assertTrue(userEntities.size() == 1);
+        Page<UserEntity> page2 = userRepository.findAllUsersWithConfirmedEmailAddress(pageableRequest1);
+
+        assertNotNull(page1);
+        assertNotNull(page2);
+
+        List<UserEntity> userEntities1 = page1.getContent();
+        List<UserEntity> userEntities2 = page1.getContent();
+
+        assertNotNull(userEntities1);
+        assertNotNull(userEntities2);
+
+        assertTrue(userEntities1.size() == 1);
+        assertTrue(userEntities2.size() == 1);
 
     }
 }
