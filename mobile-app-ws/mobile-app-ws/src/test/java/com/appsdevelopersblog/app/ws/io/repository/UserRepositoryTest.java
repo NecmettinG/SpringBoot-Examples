@@ -142,6 +142,21 @@ public class UserRepositoryTest {
         assertTrue(userFirstName.contains(keyword) || userLastName.contains(keyword));
     }
 
+    //This test is a bit different from teacher's test. It is my own implementation.
+    @Test
+    final void testUpdateUserEmailVerificationStatus(){
+
+        boolean newEmailVerificationStatus = false;
+        String userId = "219010";
+
+        userRepository.updateUserEmailVerificationStatus(newEmailVerificationStatus, userId);
+
+        UserEntity updatedUser = userRepository.findByUserId(userId);
+
+        assertNotNull(updatedUser);
+        assertTrue(updatedUser.getEmailVerificationStatus() == false);
+    }
+
     private void createRecords(){
 
         //We are going to create a user here beforehand to test our methods.
