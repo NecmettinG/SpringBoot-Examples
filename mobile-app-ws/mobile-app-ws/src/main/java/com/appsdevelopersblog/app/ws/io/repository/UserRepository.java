@@ -73,4 +73,11 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> { //We c
 
     @Query("select user.firstName, user.lastName from UserEntity user where user.userId = :userId")
     List<Object[]> getUserEntityFullNameById(@Param("userId") String userId);
+
+    //this is the jpql implementation of update method in repository.
+    @Transactional
+    @Modifying
+    @Query("update UserEntity user set user.emailVerificationStatus =:emailVerificationStatus where user.userId=:userId")
+    void updateUserEntityEmailVerificationStatus(@Param("emailVerificationStatus") boolean emailVerificationStatus,
+                                                 @Param("userId") String userId);
 }
