@@ -170,6 +170,28 @@ public class UserRepositoryTest {
 
     }
 
+    @Test
+    final void testGetUserEntityFullNameById(){
+
+        String userId = "219010";
+
+        List<Object[]> users = userRepository.getUserEntityFullNameById(userId);
+
+        assertNotNull(users);
+
+        assertTrue(users.size() == 1);
+
+        Object[] user = users.get(0);
+
+        //In our jpql query, we wrote firstName in first place and lastName as second. So firstName will be index 0 and lastName will be-
+        //-index 1.
+        String userFirstName = String.valueOf(user[0]);
+        String userLastName = String.valueOf(user[1]);
+
+        assertNotNull(userFirstName);
+        assertNotNull(userLastName);
+    }
+
     private void createRecords(){
 
         //We are going to create a user here beforehand to test our methods.
