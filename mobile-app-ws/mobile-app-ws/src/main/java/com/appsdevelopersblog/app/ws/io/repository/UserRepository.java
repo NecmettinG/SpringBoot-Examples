@@ -64,4 +64,13 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> { //We c
     @Query(value = "update Users u set u.email_verification_status =:emailVerificationStatus where u.user_id=:userId", nativeQuery = true)
     void updateUserEmailVerificationStatus(@Param("emailVerificationStatus") boolean emailVerificationStatus,
                                            @Param("userId") String userId);
+
+    //This usage is called JPQL but instead of writing table name and table's columns, we write the entity's class name and its attributes.
+    //Long story short, it is a query language just for JPA entities.
+    //instead of writing * for all columns, we write user because we declared single entity in the query as "UserEntity user".
+    @Query("select user from UserEntity user where user.userId = :userId")
+    UserEntity findUserEntityByUserId(@Param("userId") String userId);
+
+    @Query("select user.firstName, user.lastName from UserEntity user where user.userId = :userId")
+    List<Object[]> getUserEntityFullNameById(@Param("userId") String userId);
 }

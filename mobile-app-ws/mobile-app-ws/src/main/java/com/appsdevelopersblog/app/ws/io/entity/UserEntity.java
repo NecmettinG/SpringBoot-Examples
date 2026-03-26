@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
-@Entity(name = "users") //If this doesn't work, I am going to add @Table(name = "users").
+@Entity
+@Table(name= "users")/*I added @Table(name = "users") because if I write @Entity(name = "users"), I need to write:
+"select user from users user where user.userId = :userId" to our JPQL query. I want to use my default class name in the query like this:
+"select user from UserEntity user where user.userId = :userId"*/
 public class UserEntity implements Serializable {
 
     private static final long serialVersionUID = 5313493413859894403L;
