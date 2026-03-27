@@ -33,6 +33,8 @@ import java.util.List;
 //- http://localhost:8080/car-store etc. Context path will be implemented in properties file.
 @RestController
 @RequestMapping("/users") // http://localhost:8080/users, with context path: http://localhost:8080/mobile-app-ws/users
+/*@CrossOrigin(origins = "*") We enabled CORS for all api methods and they accept all origins. But we prefer global configuration so we-
+-are going to put this annotation into comment line.*/
 public class UserController {
 
     @Autowired
@@ -301,6 +303,11 @@ public class UserController {
 
     // http://localhost:8080/mobile-app-ws/users/email-verification?token=asdasdasd is an example url for this API method.
     @GetMapping(path = "email-verification", produces ={MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+    //@CrossOrigin(origins = "*") This annotation is for enabling CORS for this api endpoint. This endpoint is now ready to respond to all-
+    //- AJAX HTTP requests sent from any origin and any domain. If we type @CrossOrigin(origins = "http://localhost:8088"), we only activate-
+    //- CORS for this origin. If we want multiple origins more than one but we don't want to use asterisk, we can write like this:
+    //@CrossOrigin(origins = {"http://localhost:8088", "http://localhost:8089"}). If we want to enable CORS for all api methods, we will-
+    //-put @CrossOrigin(origins="*") annotation to top of the class. So we are gonna put this methods annotation in comment line.
     public OperationStatusModel verifyEmailToken(@RequestParam(value = "token") String token){
 
         OperationStatusModel returnValue = new OperationStatusModel();

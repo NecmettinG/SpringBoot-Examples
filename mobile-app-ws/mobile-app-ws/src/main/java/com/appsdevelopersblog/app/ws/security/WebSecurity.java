@@ -6,12 +6,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 //This class is for http web security.
 @Configuration
@@ -57,7 +63,8 @@ public class WebSecurity {
         //Normally, the default authentication url path in spring boot is "/login" but we created custom login endpoint which is "/users/login".
         authenticationFilter.setFilterProcessesUrl("/users/login");
 
-        http.csrf((csrf) -> csrf.disable()) //We disabled cross-site request forgery which is redundant for our app. Because our api is stateless.
+        http.cors(Customizer.withDefaults()) //We enabled cors support for Spring Security. .cors().and() is deprecated.
+                .csrf((csrf) -> csrf.disable()) //We disabled cross-site request forgery which is redundant for our app. Because our api is stateless.
                 .authorizeHttpRequests((authz) -> authz.requestMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL)
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, SecurityConstants.VERIFICATION_EMAIL_URL)
@@ -85,5 +92,26 @@ public class WebSecurity {
         http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
         return http.build(); //We are going to build and return http security object from this method.
+    }
+
+    //We defined CORS policies and created a bean for them.
+    //This class is a configuration class for enabling CORS.
+    //We declared CorsConfigurationSource bean in WebSecurity class and security uses it first for specifying CORS rules.
+    //If CorsConfigurationSource bean is not present, WebConfig class which implements WebMvcConfigurer specifies CORS rules.
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(){
+
+        final CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowCredentials(true);// Credentials here are cookies, authorization headers, SSL Client Certificates etc.
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+
+        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 }
