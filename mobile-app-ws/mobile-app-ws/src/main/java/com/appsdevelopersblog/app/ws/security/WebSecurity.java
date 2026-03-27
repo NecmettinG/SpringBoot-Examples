@@ -102,9 +102,16 @@ public class WebSecurity {
     @Bean
     public CorsConfigurationSource corsConfigurationSource(){
 
+        /*setAllowedOrigins(Arrays.asList("*")) and setAllowCredentials(true) combination causes CORS error.
+         That combination is invalid for browser CORS rules. When credentials are allowed, Access-Control-Allow-Origin cannot be *,
+         so Spring will not return a valid CORS response. Our html is running on port 8088 so we can write:
+         configuration.setAllowedOrigins(Arrays.asList("http://localhost:8088"));
+         If we still want to allow all origins with using wildcards, so instead of setAllowedOrigins, we will use setAllowedOriginPatterns.*/
+
+
         final CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowCredentials(true);// Credentials here are cookies, authorization headers, SSL Client Certificates etc.
         configuration.setAllowedHeaders(Arrays.asList("*"));
