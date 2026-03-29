@@ -12,6 +12,8 @@ import com.appsdevelopersblog.app.ws.ui.model.request.PasswordResetModel;
 import com.appsdevelopersblog.app.ws.ui.model.request.PasswordResetRequestModel;
 import com.appsdevelopersblog.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.appsdevelopersblog.app.ws.ui.model.response.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
@@ -51,6 +53,7 @@ public class UserController {
     //Postman has wildcards for response types. If we type "*/*" in Accept header, Postman will accept all types of responses.
     //With "produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}", We added both Json and Xml response support.
     //But Json is prioritized because it is written as first. If client app. doesn't define "Accept" header, Default response will be Json.
+    @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
     @GetMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public UserRest getUser(@PathVariable("id") String id) {
 
@@ -73,6 +76,9 @@ public class UserController {
     //value parameter takes the value of the specific key that is in query string. We can also use default value if we don't pass any value.
     //This get request only produces output so we added both json and xml support. Get request won't accept any information in Http body, so We-
     //-did not use "consumes". PAGE STARTS FROM 0 IN SQL BTW. REMEMBER THAT! 0 IS THE FIRST PAGE!
+    //This annotation is for being able to pass authorization header for this getUsers method in swagger ui. IF WE WANT TO PASS JWT TO EVERY-
+    //-METHOD, WE HAVE TO PUT @Operation() annotation to all methods that want jwt token on authorization header.
+    @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public List<UserRest> getUsers(@RequestParam(value = "page", defaultValue = "1") int page,
                                    @RequestParam(value = "limit", defaultValue = "25") int limit) {
@@ -134,6 +140,7 @@ public class UserController {
             consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
     )
+    @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
     public UserRest updateUser(@RequestBody UserDetailsRequestModel userDetails, @PathVariable("id") String id) {
 
         UserDto userDto = new UserDto();
@@ -160,6 +167,7 @@ public class UserController {
     //2. When a request for DELETE userId comes in, read JWT from the HTTP Header value and extract userId from Token.
     //3. Compare userId which was read from JWT Token with a userId read from Request Path variable. If they do not match, fail the request.
     //I am going to configure this later.
+    @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
     @DeleteMapping(path = "/{id}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public OperationStatusModel deleteUser(@PathVariable("id") String id) {
 
@@ -178,6 +186,7 @@ public class UserController {
     // http://localhost:8080/mobile-app-ws/users/{id}/addresses
     //For using HATEOAS on a method that returns list of AddressesRest, we will use CollectionModel instead of EntityModel.
     //The json response of CollectionModel is a bit different from EntityModel. Our addresses are values of a key called "_embedded".
+    @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
     @GetMapping(path = "/{id}/addresses", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     public CollectionModel<AddressesRest> getUserAddresses(@PathVariable("id") String id) {
 
@@ -260,6 +269,7 @@ public class UserController {
     //We will use HATEOAS on this api endpoint. We extended our AddressesRest class with RepresentationModel.
     //HATEOAS is simply we return multiple endpoint addresses, that is relevant to this endpoint, in response.
     //Example json output is written in AddressesRest class. Check there.
+    @Operation(security = { @SecurityRequirement(name = "bearerAuth") })
     @GetMapping(path = "/{userId}/addresses/{addressId}", produces = {MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE})
     public EntityModel<AddressesRest> getUserAddress(@PathVariable("userId") String userId, @PathVariable("addressId") String addressId) {

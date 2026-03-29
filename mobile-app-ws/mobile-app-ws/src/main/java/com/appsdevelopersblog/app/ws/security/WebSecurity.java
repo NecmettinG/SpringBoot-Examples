@@ -1,7 +1,6 @@
 package com.appsdevelopersblog.app.ws.security;
 
 import com.appsdevelopersblog.app.ws.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -74,6 +73,15 @@ public class WebSecurity {
                         .requestMatchers(HttpMethod.POST, SecurityConstants.PASSWORD_RESET_URL)
                         .permitAll()
                         .requestMatchers(SecurityConstants.H2_CONSOLE)
+                        .permitAll()
+                        .requestMatchers(
+                                "/api-docs",
+                                "/api-docs/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/swagger-resources/**",
+                                "/webjars/**")
                         .permitAll()
                         .anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
                 .authenticationManager(authenticationManager).addFilter(authenticationFilter).addFilter(new AuthorizationFilter(authenticationManager))
