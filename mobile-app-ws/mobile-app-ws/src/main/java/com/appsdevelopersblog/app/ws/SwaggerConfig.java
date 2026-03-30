@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.headers.Header;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.parameters.RequestBody;
+import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
@@ -34,14 +36,21 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
 
+    Contact contact = new Contact()
+            .name("Necmettin Gedikli")
+            .email("necmettingedikli611@gmail.com");
+
     //This implementation is from teacher's updated repository. The old implementation from videos (Docket bean, LinkDiscoverers bean, swagger2-
     // -and swagger-ui dependencies has been discarded. We will use OpenAPI bean.)
     @Bean
     public OpenAPI usersMicroserviceOpenAPI() {
         OpenAPI openAPI = new OpenAPI()
-                .info(new Info().title("Your API Title")
-                        .description("Your API Description")
-                        .version("1.0"));
+                .info(new Info().title("Restful Web Service Documentation")
+                        .description("This page is documenting Restful Web service endpoints")
+                        .version("1.0")
+                        .contact(contact))
+                .addServersItem(new Server().url("http://localhost:8080/mobile-app-ws").description("HTTP"))
+                .addServersItem(new Server().url("https://localhost:8443/mobile-app-ws").description("HTTPS"));
         /*instead of creating a fake controller and fake login method like implemented in teacher's tutorial, we added our real login endpoint-
         * -to the OpenAPI model.
         * Swagger only auto-discovers controller endpoints. Since login is handled by AuthenticationFilter (not a controller method),
