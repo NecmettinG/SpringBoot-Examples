@@ -214,6 +214,14 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(userEntity);
     }
 
+    /*
+    ***************************************************************************************************************************************
+    THIS IS THE THIRD PART OF USER AUTHENTICATION FLOW!(loadUserByUsername function).
+    * To locate user(after invoking AuthenticationFilter and its attemptAuthentication function), spring framework will first invoke this-
+    * function to load the user's record from the database using their username (email). After this function returns the user's details,-
+    * the spring framework will automatically evaluate the password encryption and validate if the provided password matches the stored one.
+    ***************************************************************************************************************************************
+    */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { //username represents email!!!
 

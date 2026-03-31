@@ -31,9 +31,9 @@ import java.util.Date;
 //THERE IS A WAY THAT WE CAN INJECT OBJECTS INSIDE A CLASS THAT IS NOT A SPRING BEAN. We are going to use UserServiceImpl in successfulAuthentication.
 
 /*This class will be used to authenticate user when they send request to perform user login.
-* When application receives a HTTP request to perform user login, this filter class will be triggered.
-* It will read username and password from HTTP request and pass them to spring framework.
-* Spring will validate these provided user credentials and if they are correct, we will be able to generate access token.*/
+ * When application receives a HTTP request to perform user login, this filter class will be triggered.
+ * It will read username and password from HTTP request and pass them to spring framework.
+ * Spring will validate these provided user credentials and if they are correct, we will be able to generate access token.*/
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 //UsernamePasswordAuthenticationFilter is a spring security class for processing authentication information when it is submitted in HTTP request.
 
@@ -44,6 +44,13 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         super(authenticationManager);
     }
 
+    /*
+    ***************************************************************************************************************************************
+    THIS IS THE SECOND PART OF USER AUTHENTICATION FLOW!(attemptAuthentication function).
+    * AuthenticationFilter class will be invoked by Spring Framework and will use the provided username(email) and password to locate user-
+    * and then to validate user password.
+    ***************************************************************************************************************************************
+    */
     //attemptAuthentication method is a part of UsernamePasswordAuthenticationFilter class, and we are overriding it.
     //It receives two parameters which are Http request and Http response objects.
     @Override
@@ -70,6 +77,20 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         }
     }
 
+
+    /*
+    ***************************************************************************************************************************************
+    THIS IS THE FOURTH PART OF USER AUTHENTICATION FLOW!(successfulAuthentication function).
+    * And then if user was successfully authenticated(after loadUserByUsername function from UserServiceImpl), Spring Framework will call-
+    * the successfulAuthentication function which we have implemented in the AuthenticationFilter class. This function will generate-
+    * Authorization JWT Token. Then we add this JWT token to a response header called "Authorization" header which will be returned back-
+    * to a calling application. This authorization token will contain a username(mail) of authorized user and it is this authorization token-
+    * that will be used in the authorization flow.
+    *
+    * This entire authentication process was to use the provided username(email) and password to locate user and to validate their password-
+    * to see if the password is correct and return authorization header.
+    ***************************************************************************************************************************************
+    */
     //Once authentication is successful, this method will be invoked by spring.
     //In this method, we are going to generate jwt access token and return this token in http response header.
     @Override
@@ -103,7 +124,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         //The reason we use (UserService) expression is getBean method returns "Object". We convert Object into UserService with this.
         //It is called TYPE CAST!!! The compiler knows what methods we can call in this way. Without cast, compiler only knows we have an Object-
         //-and won't let us call UserServiceImpl methods.
-        UserService userService = (UserService)SpringApplicationContext.getBean("userServiceImpl");
+        UserService userService = (UserService) SpringApplicationContext.getBean("userServiceImpl");
 
         //We got a particular user from database with particular email. userName represents email!
         UserDto userDto = userService.getUser(userName);

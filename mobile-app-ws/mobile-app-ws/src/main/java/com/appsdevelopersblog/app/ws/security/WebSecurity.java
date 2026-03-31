@@ -55,6 +55,13 @@ public class WebSecurity {
         //We built our authentication manager and we will use this object and our AuthenticationFilter class to create new authentication filter.
         AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 
+        /*
+        ***************************************************************************************************************************************
+        THIS IS THE FIRST PART OF USER AUTHENTICATION FLOW!(Creating Authentication Filter and using setFilterProcessesUrl("/users/login")).
+        * User first needs to send HTTP post request to a webservice endpoint that starts with "/users/login" which is custom. "/login" is default.
+        *
+        ***************************************************************************************************************************************
+        */
         //We add new authentication filter with creating AuthenticationFilter object, and AuthenticationManager object will be passed-
         //-to super class constructor.
         AuthenticationFilter authenticationFilter = new AuthenticationFilter(authenticationManager);
