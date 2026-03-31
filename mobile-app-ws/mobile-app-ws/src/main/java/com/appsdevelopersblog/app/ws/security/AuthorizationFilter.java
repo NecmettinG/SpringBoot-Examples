@@ -37,6 +37,14 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     //This method comes from BasicAuthenticationFilter, and it reads authorization header from HTTP requests.
+    /*
+    ***************************************************************************************************************************************
+    THIS IS THE FIRST PART OF USER AUTHORIZATION FLOW!(doFilterInternal function).
+    * When the request comes in, Spring Security first invokes the doFilterInternal method. It is inside doFilterInternal that the framework-
+    * initially checks if the Authorization header exists and starts with "Bearer ". Only if those conditions are met does it call your-
+    * getAuthentication() method to do the actual JWT parsing and validation.
+    ***************************************************************************************************************************************
+    */
     @Override
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,
@@ -63,6 +71,19 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         chain.doFilter(req, res);
 
     }
+
+    /*
+    ***************************************************************************************************************************************
+    THIS IS THE SECOND PART OF USER AUTHORIZATION FLOW!(getAuthentication function).
+    * After we generate a JWT token after authentication flow and pass it as "Authorization" header to a secured web service endpoint(request)-
+    * Spring Framework will then invoke AuthorizationFilter class, and we will extract "Authorization" header, which is JWT token, from request-
+    * in getAuthentication function (String authorizationHeader = request.getHeader(SecurityConstants.HEADER_STRING);). Then we validate the-
+    * token, extract the username(email) from it(JWT has claims structure). Token also signed with our secret key, we are also validating it.
+    * This was basic user authorization implementation. We will improve this code. We will extract user roles and user authorities from database-
+    * with using username(email) from JWT. We will configure our application so that Spring Framework uses this loaded user authorities to-
+    * actually validate if the currently logged in user does actually have rights to invoke the requested web service endpoint.
+    ***************************************************************************************************************************************
+    */
 
     //We will validate and parse JWT in this method.
     private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request){
