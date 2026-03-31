@@ -47,8 +47,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     /*
     ***************************************************************************************************************************************
     THIS IS THE SECOND PART OF USER AUTHENTICATION FLOW!(attemptAuthentication function).
-    * AuthenticationFilter class will be invoked by Spring Framework and will use the provided username(email) and password to locate user-
-    * and then to validate user password.
+    * AuthenticationFilter class will be invoked by Spring Framework. It will extract the provided username(email) and password from the-
+    *  HTTP request and pass them in an Authentication token to the AuthenticationManager, which will trigger the process to locate the user-
+    *  and validate the password.
     ***************************************************************************************************************************************
     */
     //attemptAuthentication method is a part of UsernamePasswordAuthenticationFilter class, and we are overriding it.
