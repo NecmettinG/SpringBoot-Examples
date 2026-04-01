@@ -1,7 +1,7 @@
 package com.appsdevelopersblog.app.ws.io.repository;
 
 import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
