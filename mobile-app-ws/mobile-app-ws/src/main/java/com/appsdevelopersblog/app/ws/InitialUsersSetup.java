@@ -3,11 +3,15 @@ package com.appsdevelopersblog.app.ws;
 
 import com.appsdevelopersblog.app.ws.io.entity.AuthorityEntity;
 import com.appsdevelopersblog.app.ws.io.entity.RoleEntity;
+import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
 import com.appsdevelopersblog.app.ws.io.repository.AuthorityRepository;
 import com.appsdevelopersblog.app.ws.io.repository.RoleRepository;
+import com.appsdevelopersblog.app.ws.io.repository.UserRepository;
+import com.appsdevelopersblog.app.ws.shared.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +22,19 @@ import java.util.Collection;
 public class InitialUsersSetup {
 
     @Autowired
-    AuthorityRepository authorityRepository;
+    private AuthorityRepository authorityRepository;
 
     @Autowired
-    RoleRepository roleRepository;
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private Utils utils;
+
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @EventListener
     @Transactional
@@ -33,8 +46,23 @@ public class InitialUsersSetup {
         AuthorityEntity writeAuthority = createAuthority("WRITE_AUTHORITY");
         AuthorityEntity deleteAuthority = createAuthority("DELETE_AUTHORITY");
 
-        RoleEntity userRole = createRole("ROLE_USER", Arrays.asList(readAuthority, writeAuthority));
-        RoleEntity adminRole = createRole("ROLE_ADMIN", Arrays.asList(readAuthority, writeAuthority, deleteAuthority));
+        RoleEntity roleUser = createRole("ROLE_USER", Arrays.asList(readAuthority, writeAuthority));
+        RoleEntity roleAdmin = createRole("ROLE_ADMIN", Arrays.asList(readAuthority, writeAuthority, deleteAuthority));
+
+        if(roleAdmin == null){
+            return;
+        }
+
+        UserEntity adminUser = new UserEntity();
+        adminUser.setFirstName("Necmettin");
+        adminUser.setLastName("Gedikli");
+        adminUser.setEmail("necmettingedikli611@gmail.com");
+        adminUser.setEmailVerificationStatus(true);
+        adminUser.setUserId(utils.generateUserId(30));
+        adminUser.setEncryptedPassword(bCryptPasswordEncoder.encode("HIRE ME BRO"));
+        adminUser.setRoles(Arrays.asList(roleAdmin));
+
+        userRepository.save(adminUser);
     }
 
     @Transactional
