@@ -21,6 +21,17 @@ public class AuthorityEntity implements Serializable {
     @ManyToMany(mappedBy = "authorities")
     private Collection<RoleEntity> roles;
 
+    //If your entity has a constructor, you also have to create a no arguments constructor.
+    public AuthorityEntity(){
+
+
+    }
+
+    //We created a constructor for name attribute.
+    public AuthorityEntity(String name) {
+        this.name = name;
+    }
+
     public long getId() {
         return id;
     }
