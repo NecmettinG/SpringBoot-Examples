@@ -16,7 +16,7 @@ public class RoleEntity implements Serializable {
     private long id;
 
     @Column(nullable = false, length = 20)
-    private String roleName;
+    private String name;
 
     //We declared many to many relationship between RoleEntity and UserEntity. One role can belong to multiple users.
     //In a Many-To-Many relationship, one side must be the "owning" side that defines the join table, and the other side is the "inverse" side.
