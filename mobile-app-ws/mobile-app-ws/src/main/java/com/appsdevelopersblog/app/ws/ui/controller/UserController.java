@@ -23,6 +23,8 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Type;
@@ -174,6 +176,17 @@ public class UserController {
     //2. When a request for DELETE userId comes in, read JWT from the HTTP Header value and extract userId from Token.
     //3. Compare userId which was read from JWT Token with a userId read from Request Path variable. If they do not match, fail the request.
     //I am going to configure this later.
+
+    //@Secured("ROLE_ADMIN") is an example of method level security annotation implementation.
+    //Only admin users can invoke this delete method. You have to add "ROLE_" prefix!
+    //@Secured("ROLE_ADMIN") //Commented out because we also want to see other implementations like @PreAuthorize and @PostAuthorize.
+
+    /*If user does not have admin role assigned to them, then we want to make sure that only the user who owns this profile is allowed to invoke-
+    this method. The id of the currently logged in principal user matches the id that we have in URL path! This solves our delete issue above.*/
+    //"ROLE_" prefix will be added automatically. To access a method argument, use "#". This makes us to access id value from inside of method.
+    /*We also use principal object to access logged in user. Its attributes are related to UserPrincipal Class, we fetch principal from-
+    -security context! principal.userId will come from security context! The reason it is userId is that it is declared like this in UserPrincipal. */
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.userId")//"hasAuthority('DELETE_AUTHORITY')" can also be written.
     @Operation(
             security = { @SecurityRequirement(name = "bearerAuth") },
             summary = "Delete user by public ID",

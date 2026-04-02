@@ -128,12 +128,17 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
         }
 
         UserEntity userEntity = userRepository.findByEmail(subject);
+
+        if (userEntity == null) return null;
+
         UserPrincipal userPrincipal = new UserPrincipal(userEntity);
 
         //We will return a new object of UsernamePasswordAuthenticationToken. This object is used to hold principle user credentials.
         //We will add this object to Spring Security Context Holder once we return this object. This will mean a successful authorization.-
         //The validation of jwt is successful.
         //we created this object with subject(username,email) value and authorities from UserPrincipal object. No password yet.
-        return new UsernamePasswordAuthenticationToken(subject, null, userPrincipal.getAuthorities());
+        /// we deleted subject(represents email) from first parameter and put UserPrinciple to access it from security context to use principal-
+        /// - object in UserController's Delete method.
+        return new UsernamePasswordAuthenticationToken(userPrincipal, null, userPrincipal.getAuthorities());
     }
 }

@@ -25,7 +25,7 @@ import java.util.Arrays;
 //@EnableGlobalMethodSecurity is deprecated. The newer implementation is on below.
 //We add method security support to our project according to the roles-authorities.
 @EnableMethodSecurity(
-        //prePostEnabled = true,   // enables @PreAuthorize, @PostAuthorize, etc.
+        prePostEnabled = true,   // enables @PreAuthorize, @PostAuthorize, etc.
         securedEnabled = true   // enables @Secured
         //jsr250Enabled = true     // enables @RolesAllowed, @PermitAll, @DenyAll
 )

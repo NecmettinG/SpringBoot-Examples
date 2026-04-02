@@ -19,8 +19,11 @@ public class UserPrincipal implements UserDetails {
 
     private UserEntity userEntity;
 
+    private String userId;
+
     public UserPrincipal(UserEntity userEntity) {
         this.userEntity = userEntity;
+        this.userId = userEntity.getUserId();
     }
 
     /*
@@ -96,11 +99,12 @@ public class UserPrincipal implements UserDetails {
     }
 
     public String getUserId() {
-        return null;
+        return userId;
     }
 
     public void setUserId(String userId) {
 
+        this.userId = userId;
     }
 
 }
