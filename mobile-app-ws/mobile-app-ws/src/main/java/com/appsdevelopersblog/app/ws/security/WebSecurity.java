@@ -8,6 +8,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -20,6 +22,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 //This class is for http web security.
+//@EnableGlobalMethodSecurity is deprecated. The newer implementation is on below.
+//We add method security support to our project according to the roles-authorities.
+@EnableMethodSecurity(
+        //prePostEnabled = true,   // enables @PreAuthorize, @PostAuthorize, etc.
+        securedEnabled = true   // enables @Secured
+        //jsr250Enabled = true     // enables @RolesAllowed, @PermitAll, @DenyAll
+)
 @Configuration
 @EnableWebSecurity
 public class WebSecurity {
@@ -95,8 +104,16 @@ public class WebSecurity {
                         .permitAll()
                         /*You have to be an admin to use HTTP Delete request and this is the implementation of it.
                         We could also use hasRole("ADMIN") instead of hasAuthority("DELETE_AUTHORITY")
-                        Spring security automatically inject "ROLE_" prefix to "ADMIN". We won't write "ROLE_ADMIN"*/
-                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("DELETE_AUTHORITY")
+                        Spring security automatically inject "ROLE_" prefix to "ADMIN". We won't write "ROLE_ADMIN".
+                        If you want to add multiple authorities, you have to use hasAnyAuthority("DELETE_AUTHORITY", "DELETE_ALL_AUTHORITY").
+                        we don't have DELETE_ALL_AUTHORITY, it is just an example. If you want multiple roles as well, you can use-
+                        hasAnyRole("ADMIN", "SUPER_ADMIN"). SUPER_ADMIN is also an example role currently.*/
+                        /*
+                        This implementation is called writing security expression for configuring access to specific web service endpoints,
+                        This implementation is implemented to HTTP Security Object. Since we want to implement method level security annotations-
+                        we will put it into comment line.
+                        */
+                        //.requestMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("DELETE_AUTHORITY")
                         .anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
                 .authenticationManager(authenticationManager).addFilter(authenticationFilter).addFilter(new AuthorizationFilter(authenticationManager, userRepository))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
