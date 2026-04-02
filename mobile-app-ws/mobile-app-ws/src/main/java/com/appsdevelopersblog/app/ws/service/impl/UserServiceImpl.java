@@ -5,6 +5,7 @@ import com.appsdevelopersblog.app.ws.io.entity.PasswordResetTokenEntity;
 import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
 import com.appsdevelopersblog.app.ws.io.repository.PasswordResetTokenRepository;
 import com.appsdevelopersblog.app.ws.io.repository.UserRepository;
+import com.appsdevelopersblog.app.ws.security.UserPrincipal;
 import com.appsdevelopersblog.app.ws.service.UserService;
 import com.appsdevelopersblog.app.ws.shared.AmazonSES;
 import com.appsdevelopersblog.app.ws.shared.Utils;
@@ -235,8 +236,11 @@ public class UserServiceImpl implements UserService {
         //userEntity.getEmailVerificationStatus() is false by default. Because it is set to false, the user will be disabled and login is-
         //-prevented. When we verify email verification token and set email verification status to true, user will be able to login when-
         //-Spring framework calls this loadUserByUsername method.
-        return new User(username, userEntity.getEncryptedPassword(), userEntity.getEmailVerificationStatus(),
-                true, true, true, new ArrayList<>());
+        //(WE PUT THIS RETURN INTO COMMENT BECAUSE WE WILL USE A NEWER IMPLEMENTATION THAT INCLUDES AUTHORITIES!)
+//        return new User(username, userEntity.getEncryptedPassword(), userEntity.getEmailVerificationStatus(),
+//                true, true, true, new ArrayList<>());
+
+        return new UserPrincipal(userEntity);
 
         //Old Constructor:
         //return new User(username, userEntity.getEncryptedPassword(), new ArrayList<>());
