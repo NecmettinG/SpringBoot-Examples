@@ -1,5 +1,7 @@
 package com.appsdevelopersblog.app.ws.security;
 
+import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
+import com.appsdevelopersblog.app.ws.io.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -31,9 +33,11 @@ import java.util.Base64;
 * -information into Spring Security Context Holder.*/
 public class AuthorizationFilter extends BasicAuthenticationFilter {
 
-    public AuthorizationFilter(AuthenticationManager authManager) {
+    private final UserRepository userRepository;
+    public AuthorizationFilter(AuthenticationManager authManager, UserRepository userRepository) {
 
         super(authManager);
+        this.userRepository = userRepository;
     }
 
     //This method comes from BasicAuthenticationFilter, and it reads authorization header from HTTP requests.
@@ -123,10 +127,13 @@ public class AuthorizationFilter extends BasicAuthenticationFilter {
             return null;
         }
 
+        UserEntity userEntity = userRepository.findByEmail(subject);
+        UserPrincipal userPrincipal = new UserPrincipal(userEntity);
+
         //We will return a new object of UsernamePasswordAuthenticationToken. This object is used to hold principle user credentials.
         //We will add this object to Spring Security Context Holder once we return this object. This will mean a successful authorization.-
         //The validation of jwt is successful.
-        //At this moment, we can create this object with subject value aka username only. It is enough for now. No password.
-        return new UsernamePasswordAuthenticationToken(subject, null, new ArrayList<>());
+        //we created this object with subject(username,email) value and authorities from UserPrincipal object. No password yet.
+        return new UsernamePasswordAuthenticationToken(subject, null, userPrincipal.getAuthorities());
     }
 }

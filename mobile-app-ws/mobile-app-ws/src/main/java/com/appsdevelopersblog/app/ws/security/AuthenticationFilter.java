@@ -108,8 +108,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         //For setting generation date and expiration date for jwt token, We use Instant object.
         Instant now = Instant.now();
 
-        //We used auth object for getting authenticated username.
-        String userName = ((User) auth.getPrincipal()).getUsername();
+        //We used auth object for getting authenticated username. Type Cast will be set according to the return type of loadUserByUsername!
+        //We currently made UserPrincipal return UserPrincipal so we will use this as type cast whenever we fetch username(email).
+        String userName = ((UserPrincipal) auth.getPrincipal()).getUsername();
 
         //To generate jwt token, we use Jwts.builder().
         String token = Jwts.builder()

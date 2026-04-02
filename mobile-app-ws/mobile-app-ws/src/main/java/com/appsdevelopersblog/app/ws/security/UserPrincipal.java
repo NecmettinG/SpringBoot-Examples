@@ -24,7 +24,7 @@ public class UserPrincipal implements UserDetails {
     }
 
     /*
-     * Authorization Flow - getAuthorities:
+     * getAuthorities:
      * This method is used by Spring Security to get the authorities (roles and privileges) granted to the user.
      * Spring Security uses this collection of GrantedAuthority objects to perform endpoint authorization 
      * (e.g., checking @Secured, @PreAuthorize, or HttpSecurity configurations).

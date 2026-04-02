@@ -1,5 +1,6 @@
 package com.appsdevelopersblog.app.ws.security;
 
+import com.appsdevelopersblog.app.ws.io.repository.UserRepository;
 import com.appsdevelopersblog.app.ws.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,13 +24,15 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class WebSecurity {
 
+    private final UserRepository userRepository;
     private final UserService userDetailsService; //Our UserService interface extends UserDetailsService interface.
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public WebSecurity(UserService userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public WebSecurity(UserService userDetailsService, BCryptPasswordEncoder bCryptPasswordEncoder, UserRepository userRepository) {
 
         this.userDetailsService = userDetailsService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.userRepository = userRepository;
     }
 
     /*This method will accept HttpSecurity object as a parameter.
@@ -91,7 +94,7 @@ public class WebSecurity {
                                 "/webjars/**")
                         .permitAll()
                         .anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
-                .authenticationManager(authenticationManager).addFilter(authenticationFilter).addFilter(new AuthorizationFilter(authenticationManager))
+                .authenticationManager(authenticationManager).addFilter(authenticationFilter).addFilter(new AuthorizationFilter(authenticationManager, userRepository))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
                 //We add new authentication filter with creating AuthenticationFilter object, and AuthenticationManager object will be passed-
                 // -to super class constructor. We also updated Http security object with .authenticationManager(authenticationManager) method.
