@@ -93,6 +93,10 @@ public class WebSecurity {
                                 "/swagger-resources/**",
                                 "/webjars/**")
                         .permitAll()
+                        /*You have to be an admin to use HTTP Delete request and this is the implementation of it.
+                        We could also use hasRole("ADMIN") instead of hasAuthority("DELETE_AUTHORITY")
+                        Spring security automatically inject "ROLE_" prefix to "ADMIN". We won't write "ROLE_ADMIN"*/
+                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("DELETE_AUTHORITY")
                         .anyRequest().authenticated())//We made post request on /users api endpoint public and we won't get http 403.
                 .authenticationManager(authenticationManager).addFilter(authenticationFilter).addFilter(new AuthorizationFilter(authenticationManager, userRepository))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

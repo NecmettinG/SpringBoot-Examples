@@ -54,12 +54,12 @@ public class InitialUsersSetup {
         }
 
         UserEntity adminUser = new UserEntity();
-        adminUser.setFirstName("Necmettin");
-        adminUser.setLastName("Gedikli");
-        adminUser.setEmail("necmettingedikli611@gmail.com");
+        adminUser.setFirstName("Boss");
+        adminUser.setLastName("Big Boss");
+        adminUser.setEmail("TheBigBoss@gmail.com");
         adminUser.setEmailVerificationStatus(true);
         adminUser.setUserId(utils.generateUserId(30));
-        adminUser.setEncryptedPassword(bCryptPasswordEncoder.encode("HIRE ME BRO"));
+        adminUser.setEncryptedPassword(bCryptPasswordEncoder.encode("Diamond Dawgs"));
         adminUser.setRoles(Arrays.asList(roleAdmin));
 
         userRepository.save(adminUser);
