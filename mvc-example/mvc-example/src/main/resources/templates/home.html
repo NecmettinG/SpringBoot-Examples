@@ -14,7 +14,8 @@
         Notice the ${...} syntax: This is called a Variable Expression in Thymeleaf.
         It is used to retrieve the attributes we added to the Model in our Controller (like 'firstName' and 'lastName').
     -->
-    <p th:text="'Hello. I am ' + ${firstName} + ' ' + ${lastName} + '. I am learning Thymeleaf!'"/>
+    <p th:text="'Hello. I am ' + ${firstName} + ' ' + ${lastName} + '. I am learning Thymeleaf! I am currently using ' +
+${modelType}"/>
 
 </body>
 </html>
