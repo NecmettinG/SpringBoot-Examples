@@ -6,6 +6,7 @@ import com.appsdevelopersblog.app.ws.service.AddressService;
 import com.appsdevelopersblog.app.ws.service.UserService;
 import com.appsdevelopersblog.app.ws.service.impl.AddressServiceImpl;
 import com.appsdevelopersblog.app.ws.service.impl.UserServiceImpl;
+import com.appsdevelopersblog.app.ws.shared.Roles;
 import com.appsdevelopersblog.app.ws.shared.dto.AddressDto;
 import com.appsdevelopersblog.app.ws.shared.dto.UserDto;
 import com.appsdevelopersblog.app.ws.ui.model.request.PasswordResetModel;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 //We have to use context path to make our tomcat server distinguish different applications to avoid conflict. Two different applications-
@@ -139,6 +141,11 @@ public class UserController {
 
         //.map(source object, destination class) method returns an instance that is an object of destination class.
         UserDto userDto = modelMapper.map(userDetails, UserDto.class);//Destination parameter is a bit different from BeanUtils, takes datatype.
+
+        /*Arrays.asList() returns an ArrayList. We want it to be unique set of roles values because user cannot have multiple roles with same name.
+        So we are going to use HashSet for it. HashSet implements the Set interface and automatically prevents duplicate values from being added.
+        If a duplicate role is passed, the HashSet will simply drop it, ensuring every role in the collection is unique.*/
+        userDto.setRoles(new HashSet<>(Arrays.asList(Roles.ROLE_USER.name())));
 
         UserDto createdUser = userService.createUser(userDto);//createdUser is the returned instance from userService.
 

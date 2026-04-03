@@ -43,8 +43,9 @@ public class UserPrincipal implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        List<AuthorityEntity> authorityEntities = new ArrayList<>();
+        //HashSet is used to prevent duplicated values, ensuring every role and authority in the collection is unique.
+        Collection<GrantedAuthority> authorities = new HashSet<>();
+        Collection<AuthorityEntity> authorityEntities = new HashSet<>();
 
         //Get User Roles:
 

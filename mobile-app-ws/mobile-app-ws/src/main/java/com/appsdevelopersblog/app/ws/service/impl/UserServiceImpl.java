@@ -2,8 +2,10 @@ package com.appsdevelopersblog.app.ws.service.impl;
 
 import com.appsdevelopersblog.app.ws.exceptions.UserServiceException;
 import com.appsdevelopersblog.app.ws.io.entity.PasswordResetTokenEntity;
+import com.appsdevelopersblog.app.ws.io.entity.RoleEntity;
 import com.appsdevelopersblog.app.ws.io.entity.UserEntity;
 import com.appsdevelopersblog.app.ws.io.repository.PasswordResetTokenRepository;
+import com.appsdevelopersblog.app.ws.io.repository.RoleRepository;
 import com.appsdevelopersblog.app.ws.io.repository.UserRepository;
 import com.appsdevelopersblog.app.ws.security.UserPrincipal;
 import com.appsdevelopersblog.app.ws.service.UserService;
@@ -26,6 +28,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -45,6 +49,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     AmazonSES amazonSES;
+
+    @Autowired
+    RoleRepository roleRepository;
 
     @Override
     public UserDto createUser(UserDto user){
@@ -85,6 +92,22 @@ public class UserServiceImpl implements UserService {
         userEntity.setEmailVerificationToken(utils.generateEmailVerificationToken(publicUserId));
 
         userEntity.setEmailVerificationStatus(false);
+
+        //set roles:
+
+        Collection<RoleEntity> roleEntities = new HashSet<>();
+
+        for(String role : user.getRoles()){
+
+            RoleEntity roleEntity = roleRepository.findByName(role);
+
+            if(roleEntity != null){
+
+                roleEntities.add(roleEntity);
+            }
+        }
+
+        userEntity.setRoles(roleEntities);
 
         UserEntity storedUserDetails = userRepository.save(userEntity); //This save method also returns Entity object btw.
 
