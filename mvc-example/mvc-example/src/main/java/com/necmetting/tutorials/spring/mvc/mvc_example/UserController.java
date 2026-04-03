@@ -1,17 +1,22 @@
 package com.necmetting.tutorials.spring.mvc.mvc_example;
 
 import com.necmetting.tutorials.spring.mvc.mvc_example.model.User;
+import com.necmetting.tutorials.spring.mvc.mvc_example.model.UserRest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.UUID;
 
 //You already know the basics of @PathVariable and @RequestParam annotations.
 @Controller
 public class UserController {
 
-    @GetMapping(path ="/users/{userId}/albums/{albumId}")
+    @GetMapping(path = "/users/{userId}/albums/{albumId}")
     public ModelAndView getAlbum(@PathVariable("userId") String userId,
-                                 @PathVariable("albumId") String albumId){
+                                 @PathVariable("albumId") String albumId) {
 
         ModelAndView modelAndView = new ModelAndView("album");
 
@@ -22,8 +27,8 @@ public class UserController {
     }
 
     //You can inspect @RequestParam's parameters here.
-    @GetMapping(path ="/users")
-    public ModelAndView getUsers(@RequestParam(name = "limit", defaultValue = "30"/*,required = false*/) int limit){
+    @GetMapping(path = "/users")
+    public ModelAndView getUsers(@RequestParam(name = "limit", defaultValue = "30"/*,required = false*/) int limit) {
 
         ModelAndView modelAndView = new ModelAndView("users");
 
@@ -38,17 +43,34 @@ public class UserController {
     // to the setter methods of the User class. It then adds this populated User object to the Model 
     // so it can be accessed in the resulting view.
     @PostMapping(path = "/users")
-    public String signupFormSubmit(@ModelAttribute User user){
+    public String signupFormSubmit(@ModelAttribute User user) {
 
         // Return the name of the Thymeleaf template ("signup-result.html") to display the submitted data.
         return "signup-result";
     }
 
+    @PostMapping(path = "/users-requestBody")
+    @ResponseBody
+    public ResponseEntity createUser(@RequestBody User user) {
+
+        //It will return "OK" as http response.
+        //return ResponseEntity.ok(HttpStatus.OK);
+
+        /*UUID.randomUUID().toString() is for generating random id value for id attribute from UserRest instance.*/
+        return new ResponseEntity(new UserRest(
+                UUID.randomUUID().toString(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail()
+        ),
+                HttpStatus.OK);
+    }
+
     // LECTURE NOTES:
     // This simple GET mapping is just responsible for showing the initial signup form.
     // Navigating to http://localhost:8080/signup in the browser will render "signup.html".
-    @GetMapping(path="/signup")
-    public String signupForm(){
+    @GetMapping(path = "/signup")
+    public String signupForm() {
 
         return "signup";
     }
