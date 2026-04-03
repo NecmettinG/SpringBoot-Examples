@@ -24,6 +24,7 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +56,11 @@ public class UserController {
     //Postman has wildcards for response types. If we type "*/*" in Accept header, Postman will accept all types of responses.
     //With "produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}", We added both Json and Xml response support.
     //But Json is prioritized because it is written as first. If client app. doesn't define "Accept" header, Default response will be Json.
+
+    /*In @PostAuthorize, We will first execute the function then we will check the expression ""returnObject.userId == principal.userId"".
+    If it is validated, then we can return from function. To access return object, use "returnObject". principal comes from security context.
+    Only certain user get their own user details.*/
+    @PostAuthorize("hasRole('ADMIN') or returnObject.userId == principal.userId")
     @Operation(security = { @SecurityRequirement(name = "bearerAuth") },
             summary = "Get user by public ID",
             description = "Returns a single user resource for the provided public user ID.")
@@ -181,6 +187,8 @@ public class UserController {
     //Only admin users can invoke this delete method. You have to add "ROLE_" prefix!
     //@Secured("ROLE_ADMIN") //Commented out because we also want to see other implementations like @PreAuthorize and @PostAuthorize.
 
+    /*In @PreAuthorize, we will check the expression first which is ""hasRole('ADMIN') or #id == principal.userId"". If it is validated, we can-
+    execute the method.*/
     /*If user does not have admin role assigned to them, then we want to make sure that only the user who owns this profile is allowed to invoke-
     this method. The id of the currently logged in principal user matches the id that we have in URL path! This solves our delete issue above.*/
     //"ROLE_" prefix will be added automatically. To access a method argument, use "#". This makes us to access id value from inside of method.
