@@ -10,8 +10,11 @@
         The 'th:' prefix is the Thymeleaf namespace.
         It allows Thymeleaf to process the attribute in the template engine.
         For example, th:text replaces the text content of the tag with the evaluated expression.
+
+        Notice the ${...} syntax: This is called a Variable Expression in Thymeleaf.
+        It is used to retrieve the attributes we added to the Model in our Controller (like 'firstName' and 'lastName').
     -->
-    <p th:text="'This is a Thymeleaf template'"/>
+    <p th:text="'Hello. I am ' + ${firstName} + ' ' + ${lastName} + '. I am learning Thymeleaf!'"/>
 
 </body>
 </html>

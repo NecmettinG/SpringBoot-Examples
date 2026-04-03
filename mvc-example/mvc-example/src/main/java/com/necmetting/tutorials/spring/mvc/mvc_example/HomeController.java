@@ -1,6 +1,7 @@
 package com.necmetting.tutorials.spring.mvc.mvc_example;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
@@ -15,7 +16,13 @@ public class HomeController {
      * - If you are using JSP (the legacy approach), Spring typically looks for 'home.jsp' configured inside the '/WEB-INF/jsp/' directory.
      */
     @GetMapping("/")
-    public String homePage(){
+    public String homePage(Model model){
+
+        // The Model object acts as a container to pass data from the controller to the view (Thymeleaf/JSP).
+        // addAttribute(key, value) binds data to a specific name.
+        // The key (e.g., "firstName") is what we will use in our template to access the value (e.g., "Necmettin").
+        model.addAttribute("firstName", "Necmettin");
+        model.addAttribute("lastName", "Gedikli");
 
         return "home";
     }
