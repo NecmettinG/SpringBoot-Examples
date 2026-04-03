@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign up Page</title>
+</head>
+<body>
+<!--
+    LECTURE NOTES:
+    The form submits data to the "/users" URL using the "POST" method.
+    This triggers our @PostMapping("/users") method in the UserController.
+-->
+<form action="/users" method="post">
+
+    <!--
+        The 'name' attribute determines what this data will be called when sent to the server.
+        It must perfectly match the field names in our User class for Spring's automatic binding to work!
+    -->
+    <div><input name="firstName" placeholder="First Name"></div>
+    <div><input name="lastName" placeholder="Last Name"></div>
+    <div><input name="email" placeholder="Email"></div>
+    <div><input name="password" placeholder="Password" type="password"></div>
+    <div><input name="repeatPassword" placeholder="Repeat password" type="password"></div>
+    <div><input type="submit"></div>
+</form>
+</body>
+</html>
