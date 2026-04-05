@@ -355,7 +355,7 @@ public class UserController {
         return EntityModel.of(returnValue, Arrays.asList(userLink, userAddressesLink, selfLink));
     }
 
-    // http://localhost:8080/mobile-app-ws/users/email-verification?token=asdasdasd is an example url for this API method.
+    // http://localhost:8080/mobile-app-ws/users/email-verification?token=asdasdasd is an example uri for this API method.
     @GetMapping(path = "email-verification", produces ={MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
     //@CrossOrigin(origins = "*") This annotation is for enabling CORS for this api endpoint. This endpoint is now ready to respond to all-
     //- AJAX HTTP requests sent from any origin and any domain. If we type @CrossOrigin(origins = "http://localhost:8088"), we only activate-
